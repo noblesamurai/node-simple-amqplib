@@ -1,0 +1,25 @@
+{
+  "name": "node-amqp-wrapper",
+  "version": "0.0.1",
+  "description": "A wrapper around https://github.com/squaremo/amqp.node to make consuming and publishing dead easy.",
+  "main": "amqp.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/noblesamurai/node-amqp-wrapper"
+  },
+  "keywords": [
+    "amqp",
+    "wrapper"
+  ],
+  "author": "Timothy Leslie Allen <allen.timothy.email@gmail.com> (https://github.com/timlesallen)",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/noblesamurai/node-amqp-wrapper/issues"
+  },
+  "dependencies": {
+    "amqplib": "~0.1.1"
+  }
+}
