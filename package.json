@@ -20,6 +20,7 @@
     "url": "https://github.com/noblesamurai/node-amqp-wrapper/issues"
   },
   "dependencies": {
-    "amqplib": "~0.1.1"
+    "amqplib": "~0.1.1",
+    "q": "~0.9.7"
   }
 }
