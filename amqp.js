@@ -92,11 +92,11 @@ AMQP.consume = function(handleMessage) {
   channel.consume(amqp_consume_queue, handleMessage, {noAck: false});
 };
 
-AMQP.ack_consumed_message = function(message) {
+AMQP.ackConsumedMessage = function(message) {
       channel.ack(message);
 };
 
-AMQP.nack_consumed_message = function(message) {
+AMQP.nackConsumedMessage = function(message) {
       channel.nack(message);
 };
 
