@@ -84,7 +84,7 @@ AMQP.connect = function(modes, cb) {
  * @param {Function(err)} The callback to call when done.
  */
 AMQP.publish = function(message, cb) {
-  channel.publish(amqp_exchange, amqp_publish_routing_key, new Buffer(message),
+  channel.publish(amqp_exchange, amqp_publish_queue_routing_key, new Buffer(message),
       {}, cb);
 };
 
