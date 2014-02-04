@@ -7,7 +7,11 @@ var AMQP = require('../amqp'),
 describe('AMQP', function() {
   describe('#connect', function() {
     it('should call the callback successfully', function(done) {
-      AMQP.connect({consume: true, publish: true}, function(err, res) {
+      AMQP.connect(process.env.AMQP_URL, process.env.AMQP_EXCHANGE, {
+        consumeQueue: process.env.AMQP_CONSUME_QUEUE,
+        publishQueue: process.env.AMQP_PUBLISH_QUEUE,
+        publishQueueRoutingKey: process.env.AMQP_PUBLISH_QUEUE_ROUTING_KEY
+      }, function(err, res) {
         if (err) return done(err);
         done();
       });
@@ -15,7 +19,10 @@ describe('AMQP', function() {
   });
   describe('#publish', function() {
     it('should call the callback successfully', function(done) {
-      AMQP.connect({publish: true}, function(err, res) {
+      AMQP.connect(process.env.AMQP_URL, process.env.AMQP_EXCHANGE, {
+        publishQueue: process.env.AMQP_PUBLISH_QUEUE,
+        publishQueueRoutingKey: process.env.AMQP_PUBLISH_QUEUE_ROUTING_KEY
+      }, function(err, res) {
         if (err) return done(err);
         AMQP.publish(new Buffer('test'), function(err) {
           if (err) return done(err);
