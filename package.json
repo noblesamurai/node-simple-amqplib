@@ -21,7 +21,8 @@
   },
   "dependencies": {
     "amqplib": "~0.1.1",
-    "q": "~0.9.7"
+    "q": "~0.9.7",
+    "lodash": "~2.4.1"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
@@ -31,6 +32,8 @@
     "grunt-contrib-watch": "~0.5.3",
     "grunt-mocha-cli": "~1.4.0",
     "mocha-unfunk-reporter": "~0.3.7",
-    "chai": "~1.8.1"
+    "chai": "~1.8.1",
+    "sandboxed-module": "~0.3.0",
+    "sinon": "~1.8.1"
   }
 }

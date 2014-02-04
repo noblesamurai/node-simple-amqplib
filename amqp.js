@@ -88,16 +88,37 @@ AMQP.publish = function(message, cb) {
       {}, cb);
 };
 
+/**
+ * handleMessage() is expected to be of the form:
+ * handleMessage(parsedMessage, callback).
+ * If callback is called with a non-null error, then the message will be
+ * nacked. If it is called with an error then it is expects to be called like:
+ * callback(err, requeue) in order
+ * to instruct rabbit whether to requeue the message (or discard/dead letter).
+ *
+ * cf http://squaremo.github.io/amqp.node/doc/channel_api.html#toc_34
+ */
 AMQP.consume = function(handleMessage) {
-  channel.consume(amqp_consume_queue, handleMessage, {noAck: false});
-};
-
-AMQP.ackConsumedMessage = function(message) {
+  function callback(message) {
+    function done(err, requeue) {
+      if (err) return channel.nack(message, false, requeue);
       channel.ack(message);
-};
+    }
 
-AMQP.nackConsumedMessage = function(message) {
-      channel.nack(message);
+    try {
+      var messagePayload = message.content.toString();
+      var parsedPayload = JSON.parse(messagePayload);
+      handleMessage(parsedPayload, done);
+    }
+    catch (e) {
+      console.log(e);
+      // Do not requeue on exception - it means something unexpected (and prob.
+      // non-transitory) happened.
+      done(e, false);
+    }
+  }
+
+  channel.consume(amqp_consume_queue, callback, {noAck: false});
 };
 
 // vim: set et sw=2 ts=2 colorcolumn=80:
