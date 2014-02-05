@@ -1,7 +1,7 @@
-var exchange,
-    queueOptions = {};
 var amqp = require('amqplib'),
     Q = require('q');
+var exchange,
+    queueOptions = {};
 
 // When we connect, we will remember the channel here:
 var channel;
@@ -59,9 +59,9 @@ exports.connect = function(uri, exch, queues, cb) {
  * @param {string} The message to publish.
  * @param {Function(err)} The callback to call when done.
  */
-exports.publish = function(message, cb) {
+exports.publish = function(message, callback) {
   channel.publish(exchange, queueOptions.publishQueueRoutingKey, new Buffer(message),
-      {}, cb);
+      {}, callback);
 };
 
 /**
@@ -89,11 +89,11 @@ exports.consume = function(handleMessage) {
       var parsedPayload = JSON.parse(messagePayload);
       handleMessage(parsedPayload, done);
     }
-    catch (e) {
-      console.log(e);
+    catch (error) {
+      console.log(error);
       // Do not requeue on exception - it means something unexpected (and prob.
       // non-transitory) happened.
-      done(e, false);
+      done(error, false);
     }
   }
 
