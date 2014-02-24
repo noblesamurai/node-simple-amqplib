@@ -103,7 +103,7 @@ exports.consume = function(handleMessage) {
 };
 
 exports.prefetch = function(value) {
-  ch.prefetch(value);
+  channel.prefetch(value);
 }
 
 // vim: set et sw=2 ts=2 colorcolumn=80:
