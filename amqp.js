@@ -102,4 +102,8 @@ exports.consume = function(handleMessage) {
   channel.consume(queueOptions.consumeQueue, callback, {noAck: false});
 };
 
+exports.prefetch = function(value) {
+  ch.prefetch(value);
+}
+
 // vim: set et sw=2 ts=2 colorcolumn=80:
