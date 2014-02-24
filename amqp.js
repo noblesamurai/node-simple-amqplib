@@ -2,6 +2,7 @@ var amqp = require('amqplib'),
     Q = require('q');
 var exchange,
     queueOptions = {};
+var PREFETCH = 10;
 
 // When we connect, we will remember the channel here:
 var channel;
@@ -34,6 +35,7 @@ exports.connect = function(uri, exch, queues, cb) {
       }
       // For consuming, we only assert the queue is there.
       function setupForConsume() {
+        ch.prefetch(PREFETCH);
         return ch.assertQueue(queueOptions.consumeQueue);
       }
 
@@ -99,5 +101,9 @@ exports.consume = function(handleMessage) {
 
   channel.consume(queueOptions.consumeQueue, callback, {noAck: false});
 };
+
+exports.prefetch = function(value) {
+  channel.prefetch(value);
+}
 
 // vim: set et sw=2 ts=2 colorcolumn=80:
