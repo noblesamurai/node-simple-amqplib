@@ -13,14 +13,19 @@ asserted/declared.
 ```javascript
 var AMQP = require('node-amqp-wrapper');
 
-var queueOptions = {
-  consumeQueue: process.env.AMQP_CONSUME,
-  publishQueue: process.env.AMQP_RESPONSE,
-  publishQueueRoutingKey: process.env.AMQP_RESPONSE_ROUTING_KEY
+var queues = {
+  consume: {
+    queueName: process.env.AMQP_CONSUME,
+    options: {deadLetterExchange: process.env.AMQP_DEAD_LETTER_EXCHANGE}
+  },
+  publish: {
+    queueName: process.env.AMQP_RESPONSE,
+    routingKey: process.env.AMQP_RESPONSE_ROUTING_KEY
+  }
 };
 
 AMQP.connect(process.env.AMQP_URL, process.env.AMQP_EXCHANGE,
-    queueOptions, amqpConnectDone);
+    queues, amqpConnectDone);
 
 // Set the QOS/prefetch.
 AMQP.prefetch(100);

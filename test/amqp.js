@@ -8,9 +8,13 @@ describe('AMQP', function() {
   describe('#connect', function() {
     it('should call the callback successfully', function(done) {
       AMQP.connect(process.env.AMQP_URL, process.env.AMQP_EXCHANGE, {
-        consumeQueue: process.env.AMQP_CONSUME_QUEUE,
-        publishQueue: process.env.AMQP_PUBLISH_QUEUE,
-        publishQueueRoutingKey: process.env.AMQP_PUBLISH_QUEUE_ROUTING_KEY
+        consume: {
+          queueName: process.env.AMQP_CONSUME_QUEUE
+        },
+        publish: {
+          queueName: process.env.AMQP_PUBLISH_QUEUE,
+          routingKey: process.env.AMQP_PUBLISH_QUEUE_ROUTING_KEY
+        }
       }, function(err, res) {
         if (err) return done(err);
         done();
@@ -20,8 +24,10 @@ describe('AMQP', function() {
   describe('#publish', function() {
     it('should call the callback successfully', function(done) {
       AMQP.connect(process.env.AMQP_URL, process.env.AMQP_EXCHANGE, {
-        publishQueue: process.env.AMQP_PUBLISH_QUEUE,
-        publishQueueRoutingKey: process.env.AMQP_PUBLISH_QUEUE_ROUTING_KEY
+        publish: {
+          queueName: process.env.AMQP_PUBLISH_QUEUE,
+          routingKey: process.env.AMQP_PUBLISH_QUEUE_ROUTING_KEY
+        }
       }, function(err, res) {
         if (err) return done(err);
         AMQP.publish(new Buffer('test'), function(err) {
@@ -58,6 +64,7 @@ describe('AMQP', function() {
       var mockedAMQP = SandboxedModule.require('../amqp',
         // message will be {}. Mock out 'ack' method.
         createMockedModuleObject('{}', {ack: ackSpy}));
+      mockedAMQP.queueParams({consume: {}});
 
       function myMessageHandler(parsedMsg, cb) {
         cb();
@@ -76,6 +83,7 @@ describe('AMQP', function() {
       var mockedAMQP = SandboxedModule.require('../amqp',
         // message will be invalid json. Mock out 'nack' method.
         createMockedModuleObject('nonvalidjson', {nack: nackSpy}));
+      mockedAMQP.queueParams({consume: {}});
 
       function myMessageHandler(parsedMsg, cb) {
         cb();
@@ -92,6 +100,7 @@ describe('AMQP', function() {
       var mockedAMQP = SandboxedModule.require('../amqp',
         // message will be {}. Mock out 'nack' method.
         createMockedModuleObject('{}', {nack: nackSpy}));
+      mockedAMQP.queueParams({consume: {}});
 
 
       function myMessageHandler(parsedMsg, cb) {

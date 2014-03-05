@@ -27,23 +27,26 @@ exports.connect = function(uri, exch, _queueParams, cb) {
       // For publishing, we assert the queue is there and bind it to the routing
       // key we are going to use.
       function setupForPublish() {
-        return ch.assertQueue(queueParams.publishQueue, queueParams.queueOptions)
+        return ch.assertQueue(queueParams.publish.queueName,
+            queueParams.publish.options)
         .then(function() {
-          return ch.bindQueue(queueParams.publishQueue, exchange,
-              queueParams.publishQueueRoutingKey);
+          return ch.bindQueue(queueParams.publish.queueName, exchange,
+              queueParams.publish.routingKey);
         });
       }
       // For consuming, we only assert the queue is there.
       function setupForConsume() {
         ch.prefetch(PREFETCH);
-        return ch.assertQueue(queueParams.consumeQueue, queueParams.queueOptions);
+        return ch.assertQueue(queueParams.consume.queueName,
+            queueParams.consume.options);
       }
 
       var todo = assert_exchange;
-      if (queueParams.publishQueue && queueParams.publishQueueRoutingKey) {
+      if (queueParams.publish && queueParams.publish.queueName &&
+          queueParams.publish.routingKey) {
         todo = todo.then(setupForPublish);
       }
-      if (queueParams.consumeQueue) {
+      if (queueParams.consume && queueParams.consume.routingKey) {
         todo = todo.then(setupForConsume);
       }
       return todo;
@@ -62,7 +65,7 @@ exports.connect = function(uri, exch, _queueParams, cb) {
  * @param {Function(err)} The callback to call when done.
  */
 exports.publish = function(message, callback) {
-  channel.publish(exchange, queueParams.publishQueueRoutingKey, new Buffer(message),
+  channel.publish(exchange, queueParams.publish.routingKey, new Buffer(message),
       {}, callback);
 };
 
@@ -99,11 +102,17 @@ exports.consume = function(handleMessage) {
     }
   }
 
-  channel.consume(queueParams.consumeQueue, callback, {noAck: false});
+  channel.consume(queueParams.consume.queueName, callback, {noAck: false});
 };
 
 exports.prefetch = function(value) {
   channel.prefetch(value);
+};
+
+if (process.env.NODE_ENV == 'test') {
+  exports.queueParams = function(_queueParams) {
+    queueParams = _queueParams;
+  };
 }
 
 // vim: set et sw=2 ts=2 colorcolumn=80:
