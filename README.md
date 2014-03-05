@@ -15,11 +15,11 @@ var AMQP = require('node-amqp-wrapper');
 
 var queues = {
   consume: {
-    queueName: process.env.AMQP_CONSUME,
+    name: process.env.AMQP_CONSUME,
     options: {deadLetterExchange: process.env.AMQP_DEAD_LETTER_EXCHANGE}
   },
   publish: {
-    queueName: process.env.AMQP_RESPONSE,
+    name: process.env.AMQP_RESPONSE,
     routingKey: process.env.AMQP_RESPONSE_ROUTING_KEY
   }
 };
