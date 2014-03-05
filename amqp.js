@@ -27,22 +27,22 @@ exports.connect = function(uri, exch, _queueParams, cb) {
       // For publishing, we assert the queue is there and bind it to the routing
       // key we are going to use.
       function setupForPublish() {
-        return ch.assertQueue(queueParams.publish.queueName,
+        return ch.assertQueue(queueParams.publish.name,
             queueParams.publish.options)
         .then(function() {
-          return ch.bindQueue(queueParams.publish.queueName, exchange,
+          return ch.bindQueue(queueParams.publish.name, exchange,
               queueParams.publish.routingKey);
         });
       }
       // For consuming, we only assert the queue is there.
       function setupForConsume() {
         ch.prefetch(PREFETCH);
-        return ch.assertQueue(queueParams.consume.queueName,
+        return ch.assertQueue(queueParams.consume.name,
             queueParams.consume.options);
       }
 
       var todo = assert_exchange;
-      if (queueParams.publish && queueParams.publish.queueName &&
+      if (queueParams.publish && queueParams.publish.name &&
           queueParams.publish.routingKey) {
         todo = todo.then(setupForPublish);
       }
@@ -102,7 +102,7 @@ exports.consume = function(handleMessage) {
     }
   }
 
-  channel.consume(queueParams.consume.queueName, callback, {noAck: false});
+  channel.consume(queueParams.consume.name, callback, {noAck: false});
 };
 
 exports.prefetch = function(value) {
