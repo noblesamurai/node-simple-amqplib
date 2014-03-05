@@ -46,7 +46,7 @@ exports.connect = function(uri, exch, _queueParams, cb) {
           queueParams.publish.routingKey) {
         todo = todo.then(setupForPublish);
       }
-      if (queueParams.consume && queueParams.consume.routingKey) {
+      if (queueParams.consume && queueParams.consume.name) {
         todo = todo.then(setupForConsume);
       }
       return todo;
