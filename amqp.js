@@ -1,7 +1,7 @@
 var amqp = require('amqplib'),
     Q = require('q');
 var exchange,
-    queueOptions = {};
+    queueParams = {};
 var PREFETCH = 10;
 
 // When we connect, we will remember the channel here:
@@ -10,8 +10,8 @@ var channel;
 /**
  * Passes the AMQP channel created to the callback.
  */
-exports.connect = function(uri, exch, queues, cb) {
-  queueOptions = queues;
+exports.connect = function(uri, exch, _queueParams, cb) {
+  queueParams = _queueParams;
   exchange = exch;
   // amqp.connect throws on some error conditions, rather than resolving the
   // promise.  Hence the need for the try/catch.
@@ -27,23 +27,23 @@ exports.connect = function(uri, exch, queues, cb) {
       // For publishing, we assert the queue is there and bind it to the routing
       // key we are going to use.
       function setupForPublish() {
-        return ch.assertQueue(queueOptions.publishQueue)
+        return ch.assertQueue(queueParams.publishQueue, queueParams.queueOptions)
         .then(function() {
-          return ch.bindQueue(queueOptions.publishQueue, exchange,
-              queueOptions.publishQueueRoutingKey);
+          return ch.bindQueue(queueParams.publishQueue, exchange,
+              queueParams.publishQueueRoutingKey);
         });
       }
       // For consuming, we only assert the queue is there.
       function setupForConsume() {
         ch.prefetch(PREFETCH);
-        return ch.assertQueue(queueOptions.consumeQueue);
+        return ch.assertQueue(queueParams.consumeQueue, queueParams.queueOptions);
       }
 
       var todo = assert_exchange;
-      if (queueOptions.publishQueue && queueOptions.publishQueueRoutingKey) {
+      if (queueParams.publishQueue && queueParams.publishQueueRoutingKey) {
         todo = todo.then(setupForPublish);
       }
-      if (queueOptions.consumeQueue) {
+      if (queueParams.consumeQueue) {
         todo = todo.then(setupForConsume);
       }
       return todo;
@@ -62,7 +62,7 @@ exports.connect = function(uri, exch, queues, cb) {
  * @param {Function(err)} The callback to call when done.
  */
 exports.publish = function(message, callback) {
-  channel.publish(exchange, queueOptions.publishQueueRoutingKey, new Buffer(message),
+  channel.publish(exchange, queueParams.publishQueueRoutingKey, new Buffer(message),
       {}, callback);
 };
 
@@ -99,7 +99,7 @@ exports.consume = function(handleMessage) {
     }
   }
 
-  channel.consume(queueOptions.consumeQueue, callback, {noAck: false});
+  channel.consume(queueParams.consumeQueue, callback, {noAck: false});
 };
 
 exports.prefetch = function(value) {
