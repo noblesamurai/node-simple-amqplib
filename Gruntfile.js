@@ -3,6 +3,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     env: {
       test: {
+        NODE_ENV: 'test',
         AMQP_URL: '
         AMQP_EXCHANGE: 'samuraicloud',
         AMQP_CONSUME_QUEUE: 'consume_queue',
