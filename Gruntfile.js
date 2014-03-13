@@ -3,12 +3,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     env: {
       test: {
-        NODE_ENV: 'test',
-        AMQP_URL: '
-        AMQP_EXCHANGE: 'samuraicloud',
-        AMQP_CONSUME_QUEUE: 'consume_queue',
-        AMQP_PUBLISH_QUEUE: 'publish_queue',
-        AMQP_PUBLISH_QUEUE_ROUTING_KEY: 'snapshot_to_gs',
+        NODE_ENV: 'test'
       }
     },
     jshint: {
