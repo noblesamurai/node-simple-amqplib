@@ -9,10 +9,10 @@ describe('AMQP', function() {
     it('should call the callback successfully', function(done) {
       AMQP.connect(process.env.AMQP_URL, process.env.AMQP_EXCHANGE, {
         consume: {
-          queueName: process.env.AMQP_CONSUME_QUEUE
+          name: process.env.AMQP_CONSUME_QUEUE
         },
         publish: {
-          queueName: process.env.AMQP_PUBLISH_QUEUE,
+          name: process.env.AMQP_PUBLISH_QUEUE,
           routingKey: process.env.AMQP_PUBLISH_QUEUE_ROUTING_KEY
         }
       }, function(err, res) {
@@ -25,7 +25,7 @@ describe('AMQP', function() {
     it('should call the callback successfully', function(done) {
       AMQP.connect(process.env.AMQP_URL, process.env.AMQP_EXCHANGE, {
         publish: {
-          queueName: process.env.AMQP_PUBLISH_QUEUE,
+          name: process.env.AMQP_PUBLISH_QUEUE,
           routingKey: process.env.AMQP_PUBLISH_QUEUE_ROUTING_KEY
         }
       }, function(err, res) {
