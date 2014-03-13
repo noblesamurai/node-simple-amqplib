@@ -20,7 +20,8 @@ var queues = {
   publish: [
     {
       name: process.env.AMQP_RESPONSE,
-      routingKey: process.env.AMQP_RESPONSE_ROUTING_KEY
+      routingKey: process.env.AMQP_RESPONSE_ROUTING_KEY,
+      options: {/* ... */} // options passed to ch.assertQueue() in wrapped lib.
     },
     { // ...
     }
