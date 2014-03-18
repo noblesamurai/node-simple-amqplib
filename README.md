@@ -3,11 +3,10 @@ node-amqp-wrapper
 
 A simple wrapper to https://github.com/squaremo/amqp.node.
 
-Allows you to have one publish queue, one consume queue and to perform
+Allows you to have any number of publish queues, one consume queue and to perform
 consume and publish operations.
 
-Can pass queue options in that will be used when the queue is
-asserted/declared.
+Handles assert/declare of queues.
 
 # Example usage
 ```javascript
@@ -18,10 +17,15 @@ var queues = {
     name: process.env.AMQP_CONSUME,
     options: {deadLetterExchange: process.env.AMQP_DEAD_LETTER_EXCHANGE}
   },
-  publish: {
-    name: process.env.AMQP_RESPONSE,
-    routingKey: process.env.AMQP_RESPONSE_ROUTING_KEY
-  }
+  publish: [
+    {
+      name: process.env.AMQP_RESPONSE,
+      routingKey: process.env.AMQP_RESPONSE_ROUTING_KEY,
+      options: {/* ... */} // options passed to ch.assertQueue() in wrapped lib.
+    },
+    { // ...
+    }
+  ]
 };
 
 AMQP.connect(process.env.AMQP_URL, process.env.AMQP_EXCHANGE,
@@ -45,4 +49,4 @@ callback(err, requeue)
 AMQP.consume(handleMessage);
 
 // Publishing
-AMQP.publish(payload, done);
+AMQP.publish(name, payload, done);

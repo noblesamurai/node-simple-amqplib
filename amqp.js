@@ -1,5 +1,6 @@
 var amqp = require('amqplib'),
-    Q = require('q');
+    Q = require('q'),
+    _ = require('lodash');
 var exchange,
     queueParams = {};
 var PREFETCH = 10;
@@ -27,12 +28,15 @@ exports.connect = function(uri, exch, _queueParams, cb) {
       // For publishing, we assert the queue is there and bind it to the routing
       // key we are going to use.
       function setupForPublish() {
-        return ch.assertQueue(queueParams.publish.name,
+        var setupPublishes = queueParams.publish.map(function(queue) {
+          return ch.assertQueue(queueParams.publish.name,
             queueParams.publish.options)
-        .then(function() {
-          return ch.bindQueue(queueParams.publish.name, exchange,
-              queueParams.publish.routingKey);
+          .then(function() {
+            return ch.bindQueue(queueParams.publish.name, exchange,
+                queueParams.publish.routingKey);
+          });
         });
+        return Q.all(setupPublishes);
       }
       // For consuming, we only assert the queue is there.
       function setupForConsume() {
@@ -64,8 +68,9 @@ exports.connect = function(uri, exch, _queueParams, cb) {
  * @param {string} The message to publish.
  * @param {Function(err)} The callback to call when done.
  */
-exports.publish = function(message, callback) {
-  channel.publish(exchange, queueParams.publish.routingKey, new Buffer(message),
+exports.publish = function(name, message, callback) {
+  var publishQueue = _.find(queueParams.publish, {'name': name});
+  channel.publish(exchange, publishQueue.routingKey, new Buffer(message),
       {}, callback);
 };
 
