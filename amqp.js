@@ -63,15 +63,25 @@ exports.connect = function(uri, exch, _queueParams, cb) {
 };
 
 /**
- * Submit a message on cached AMQP channel.
- * @param {Object} ch The channel passed to the callback in AMQP.connect.
+ * Publish a message to one of the AMQP queues specified on connect.
+ * @param {string} name The name of the queue to use.
  * @param {string} The message to publish.
  * @param {Function(err)} The callback to call when done.
  */
-exports.publish = function(name, message, callback) {
+exports.publishToQueue = function(name, message, callback) {
   var publishQueue = _.find(queueParams.publish, {'name': name});
   channel.publish(exchange, publishQueue.routingKey, new Buffer(message),
       {}, callback);
+};
+
+/**
+ * Publish a message using the specified routing key.
+ * @param {string} name The name of the queue to use.
+ * @param {string} The message to publish.
+ * @param {Function(err)} The callback to call when done.
+ */
+exports.publish = function(routingKey, message, callback) {
+  channel.publish(exchange, routingKey, new Buffer(message), {}, callback);
 };
 
 /**
