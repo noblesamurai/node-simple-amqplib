@@ -48,5 +48,8 @@ callback(err, requeue)
 // Start consuming:
 AMQP.consume(handleMessage);
 
-// Publishing
-AMQP.publish(name, payload, done);
+// Publishing to one of the queues declared on connect.
+AMQP.publishToQueue(name, payload, done);
+
+// Publishing to arbitrary routing key.
+AMQP.publish(routingKey, payload, done);
