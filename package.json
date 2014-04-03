@@ -1,6 +1,6 @@
 {
   "name": "node-amqp-wrapper",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A wrapper around https://github.com/squaremo/amqp.node to make consuming and publishing dead easy.",
   "main": "amqp.js",
   "scripts": {
