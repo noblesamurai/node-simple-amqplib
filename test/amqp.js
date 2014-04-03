@@ -23,7 +23,7 @@ describe('AMQP', function() {
       });
     });
   });
-  describe('#publish', function() {
+  describe('#publishToQueue', function() {
     it('should call the callback successfully', function(done) {
       AMQP.connect('amqp://guest:guest@localhost', 'mytestexchange', {
         publish: [
@@ -33,6 +33,18 @@ describe('AMQP', function() {
           }
         ]
       }, function(err, res) {
+        if (err) return done(err);
+        AMQP.publishToQueue('myqueue', new Buffer('test'), function(err) {
+          if (err) return done(err);
+          done();
+        });
+      });
+    });
+  });
+  describe('#publish', function() {
+    it('should call the callback successfully', function(done) {
+      AMQP.connect('amqp://guest:guest@localhost', 'mytestexchange',{},
+          function(err, res) {
         if (err) return done(err);
         AMQP.publish('myqueue', new Buffer('test'), function(err) {
           if (err) return done(err);
