@@ -14,7 +14,7 @@ var channel;
  */
 var setupForPublish = function(channel, queueParams) {
   var setupPublishes = queueParams.publish.map(function(queue) {
-    return channel.assertQueue(queue.name, queue.options || {})
+    return channel.assertQueue(queue.name, queue.options)
     .then(function() {
       return channel.bindQueue(queue.name, exchange, queue.routingKey);
     });
