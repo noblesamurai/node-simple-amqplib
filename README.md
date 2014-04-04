@@ -53,6 +53,7 @@ AMQP.publishToQueue(name, payload, done);
 
 // Publishing to arbitrary routing key.
 AMQP.publish(routingKey, payload, done);
+```
 
 # License
 
