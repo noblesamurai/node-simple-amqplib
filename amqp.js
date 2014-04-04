@@ -9,6 +9,37 @@ var PREFETCH = 10;
 var channel;
 
 /**
+ * For publishing, we assert the queue is there and bind it to the routing
+ * key we are going to use.
+ */
+var setupForPublish = function(channel, queueParams) {
+  var setupPublishes = queueParams.publish.map(function(queue) {
+    return channel.assertQueue(queue.name, queue.options || {})
+    .then(function() {
+      return channel.bindQueue(queue.name, exchange, queue.routingKey);
+    });
+  });
+  return Q.all(setupPublishes);
+};
+
+// For consuming, we only assert the queue is there.
+var setupForConsume = function(channel, queueParams) {
+  channel.prefetch(PREFETCH);
+  return channel.assertQueue(queueParams.consume.name,
+      queueParams.consume.options);
+};
+
+if (process.env.NODE_ENV === 'test') {
+  exports.replaceSetupFuncs = function(consume, publish) {
+    setupForPublish = publish;
+    setupForConsume = consume;
+  };
+  exports.getSetupFuncs = function() {
+    return {publish: setupForPublish, consume: setupForConsume};
+  };
+}
+
+/**
  * Passes the AMQP channel created to the callback.
  */
 exports.connect = function(uri, exch, _queueParams, cb) {
@@ -25,33 +56,12 @@ exports.connect = function(uri, exch, _queueParams, cb) {
       channel = ch;
 
       var assert_exchange = ch.assertExchange(exchange, 'topic');
-      // For publishing, we assert the queue is there and bind it to the routing
-      // key we are going to use.
-      function setupForPublish() {
-        var setupPublishes = queueParams.publish.map(function(queue) {
-          return ch.assertQueue(queueParams.publish.name,
-            queueParams.publish.options)
-          .then(function() {
-            return ch.bindQueue(queueParams.publish.name, exchange,
-                queueParams.publish.routingKey);
-          });
-        });
-        return Q.all(setupPublishes);
-      }
-      // For consuming, we only assert the queue is there.
-      function setupForConsume() {
-        ch.prefetch(PREFETCH);
-        return ch.assertQueue(queueParams.consume.name,
-            queueParams.consume.options);
-      }
-
       var todo = assert_exchange;
-      if (queueParams.publish && queueParams.publish.name &&
-          queueParams.publish.routingKey) {
-        todo = todo.then(setupForPublish);
+      if (queueParams.publish && queueParams.publish instanceof Array) {
+        todo = todo.then(setupForPublish(ch, queueParams));
       }
       if (queueParams.consume && queueParams.consume.name) {
-        todo = todo.then(setupForConsume);
+        todo = todo.then(setupForConsume(ch, queueParams));
       }
       return todo;
     }).nodeify(cb);
