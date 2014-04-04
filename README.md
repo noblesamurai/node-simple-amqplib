@@ -1,4 +1,4 @@
-node-amqp-wrapper
+amqp-wrapper
 ----------------
 
 A simple wrapper to https://github.com/squaremo/amqp.node.
