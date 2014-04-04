@@ -1,10 +1,13 @@
-var AMQP = require('../amqp'),
-    SandboxedModule = require('sandboxed-module'),
+var SandboxedModule = require('sandboxed-module'),
     expect = require('chai').expect,
     sinon = require('sinon'),
     $ = require('lodash');
 
 describe('AMQP', function() {
+  var AMQP;
+  beforeEach(function() {
+    AMQP = require('../amqp');
+  });
   describe('#connect', function() {
     it('should call the callback successfully', function(done) {
       AMQP.connect('amqp://guest:guest@localhost', 'mytestexchange', {
@@ -19,6 +22,25 @@ describe('AMQP', function() {
         ]
       }, function(err, res) {
         if (err) return done(err);
+        done();
+      });
+    });
+    it('should setup for publishing and consuming', function(done) {
+      AMQP.replaceSetupFuncs(sinon.spy(), sinon.spy());
+      AMQP.connect('amqp://guest:guest@localhost', 'mytestexchange', {
+        consume: {name: 'myconsumequeue2'},
+        publish: [
+          {
+            name: 'mypublishqueue2',
+            routingKey: 'mypublishqueue2'
+          }
+        ]
+      }, function(err, res) {
+        if (err) return done(err);
+        expect(AMQP.getSetupFuncs().consume.calledOnce, 'setupForConsume()').to.
+            equal(true);
+        expect(AMQP.getSetupFuncs().publish.calledOnce, 'setupForPublish()').to.
+            equal(true);
         done();
       });
     });
@@ -43,7 +65,7 @@ describe('AMQP', function() {
   });
   describe('#publish', function() {
     it('should call the callback successfully', function(done) {
-      AMQP.connect('amqp://guest:guest@localhost', 'mytestexchange',{},
+      AMQP.connect('amqp://guest:guest@localhost', 'mytestexchange', {},
           function(err, res) {
         if (err) return done(err);
         AMQP.publish('myqueue', new Buffer('test'), function(err) {
