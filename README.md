@@ -10,7 +10,7 @@ Handles assert/declare of queues.
 
 # Example usage
 ```javascript
-var AMQP = require('node-amqp-wrapper');
+var AMQP = require('amqp-wrapper');
 
 var queues = {
   consume: {
