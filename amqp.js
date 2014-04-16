@@ -88,10 +88,12 @@ exports.publishToQueue = function(name, message, callback) {
  * Publish a message using the specified routing key.
  * @param {string} name The name of the queue to use.
  * @param {string} The message to publish.
+ * @param {Object} options Any options to pass through to the underlying
+ *                         publish.
  * @param {Function(err)} The callback to call when done.
  */
-exports.publish = function(routingKey, message, callback) {
-  channel.publish(exchange, routingKey, new Buffer(message), {}, callback);
+exports.publish = function(routingKey, message, options, callback) {
+  channel.publish(exchange, routingKey, new Buffer(message), options, callback);
 };
 
 /**
