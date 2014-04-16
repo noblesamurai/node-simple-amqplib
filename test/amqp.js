@@ -68,7 +68,7 @@ describe('AMQP', function() {
       AMQP.connect(' 'mytestexchange', {},
           function(err, res) {
         if (err) return done(err);
-        AMQP.publish('myqueue', new Buffer('test'), function(err) {
+        AMQP.publish('myqueue', new Buffer('test'), {}, function(err) {
           if (err) return done(err);
           done();
         });
