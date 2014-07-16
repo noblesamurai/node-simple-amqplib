@@ -20,10 +20,7 @@ describe('AMQP', function() {
             routingKey: 'mypublishqueuerk'
           }
         ]
-      }, function(err, res) {
-        if (err) return done(err);
-        done();
-      });
+      }, done);
     });
     it('should setup for publishing and consuming', function(done) {
       AMQP.replaceSetupFuncs(sinon.spy(), sinon.spy());
@@ -35,7 +32,7 @@ describe('AMQP', function() {
             routingKey: 'mypublishqueue2'
           }
         ]
-      }, function(err, res) {
+      }, function(err) {
         if (err) return done(err);
         expect(AMQP.getSetupFuncs().consume.calledOnce, 'setupForConsume()').to.
             equal(true);
@@ -56,10 +53,7 @@ describe('AMQP', function() {
         ]
       }, function(err, res) {
         if (err) return done(err);
-        AMQP.publishToQueue('myqueue', new Buffer('test'), function(err) {
-          if (err) return done(err);
-          done();
-        });
+        AMQP.publishToQueue('myqueue', 'test', done);
       });
     });
   });
@@ -68,10 +62,7 @@ describe('AMQP', function() {
       AMQP.connect('amqp://guest:guest@localhost', 'mytestexchange', {},
           function(err, res) {
         if (err) return done(err);
-        AMQP.publish('myqueue', new Buffer('test'), {}, function(err) {
-          if (err) return done(err);
-          done();
-        });
+        AMQP.publish('myqueue', 'test', {}, done);
       });
     });
   });
