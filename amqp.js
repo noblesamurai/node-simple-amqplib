@@ -79,6 +79,7 @@ exports.connect = function(uri, exch, _queueParams, cb) {
  * @param {Function(err)} The callback to call when done.
  */
 exports.publishToQueue = function(name, message, callback) {
+  if (typeof message === 'object') message = JSON.stringify(message);
   var publishQueue = _.find(queueParams.publish, {'name': name});
   channel.publish(exchange, publishQueue.routingKey, new Buffer(message),
       {}, callback);
@@ -93,6 +94,7 @@ exports.publishToQueue = function(name, message, callback) {
  * @param {Function(err)} The callback to call when done.
  */
 exports.publish = function(routingKey, message, options, callback) {
+  if (typeof message === 'object') message = JSON.stringify(message);
   channel.publish(exchange, routingKey, new Buffer(message), options, callback);
 };
 

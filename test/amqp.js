@@ -65,6 +65,13 @@ describe('AMQP', function() {
         AMQP.publish('myqueue', 'test', {}, done);
       });
     });
+    it('should accept objects', function(done) {
+      AMQP.connect('amqp://guest:guest@localhost', 'mytestexchange', {},
+          function(err, res) {
+        if (err) return done(err);
+        AMQP.publish('myqueue', {woo: 'test'}, {}, done);
+      });
+    });
   });
   describe('#consume', function() {
     function createMockedModuleObject(messageToDeliver, additionals) {
