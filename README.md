@@ -52,7 +52,7 @@ AMQP.consume(handleMessage);
 AMQP.publishToQueue(name, payload, done);
 
 // Publishing to arbitrary routing key.
-AMQP.publish(routingKey, payload, done);
+AMQP.publish(routingKey, payload, options, done);
 
 If `payload` is an object, it will be turned into JSON.
 ```
