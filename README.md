@@ -58,9 +58,9 @@ amqp.publishToQueue(name, payload, done);
 
 // Publishing to arbitrary routing key.
 amqp.publish(routingKey, payload, options, done);
+```
 
 If `payload` is an object, it will be turned into JSON.
-```
 
 # License
 
