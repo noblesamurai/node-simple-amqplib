@@ -3,10 +3,14 @@ var amqp = require('amqplib'),
     _ = require('lodash'),
     queueSetup = require('./queue-setup');
 
-module.exports = function(params) {
+module.exports = function(config) {
+  if (!config || !config.url || !config.exchange) {
+    throw new Error('amqp-wrapper: Invalid config');
+  }
+
   var channel;
 
-  params.prefetch = params.prefetch || 10;
+  config.prefetch = config.prefetch || 10;
 
   var ret = {
     /**
@@ -16,22 +20,21 @@ module.exports = function(params) {
       // amqp.connect throws on some error conditions, rather than resolving the
       // promise.  Hence the need for the try/catch.
       try {
-        Q(amqp.connect(params.url))
+        Q(amqp.connect(config.url))
         .then(function(conn) {
           return conn.createConfirmChannel();
         })
         .then(function(ch) {
           channel = ch;
 
-          var assert_exchange = ch.assertExchange(params.exchange, 'topic');
-          var todo = assert_exchange;
-          if (params.queues.publish && params.queues.publish instanceof Array) {
-            todo = todo.then(queueSetup.setupForPublish(ch, params));
+          var promise = ch.assertExchange(config.exchange, 'topic');
+          if (config.queues.publish && config.queues.publish instanceof Array) {
+            promise = promise.then(queueSetup.setupForPublish(ch, config));
           }
-          if (params.queues.consume && params.queues.consume.name) {
-            todo = todo.then(queueSetup.setupForConsume(ch, params));
+          if (config.queues.consume && config.queues.consume.name) {
+            promise = promise.then(queueSetup.setupForConsume(ch, config));
           }
-          return todo;
+          return promise;
         }).nodeify(cb);
       }
       catch (e) {
@@ -48,8 +51,8 @@ module.exports = function(params) {
      */
     publishToQueue: function(name, message, callback) {
       if (typeof message === 'object') message = JSON.stringify(message);
-      var publishQueue = _.find(params.queues.publish, {'name': name});
-      channel.publish(params.exchange, publishQueue.routingKey, new Buffer(message),
+      var publishQueue = _.find(config.queues.publish, {'name': name});
+      channel.publish(config.exchange, publishQueue.routingKey, new Buffer(message),
           {}, callback);
     },
 
@@ -63,7 +66,7 @@ module.exports = function(params) {
      */
     publish: function(routingKey, message, options, callback) {
       if (typeof message === 'object') message = JSON.stringify(message);
-      channel.publish(params.exchange, routingKey, new Buffer(message), options, callback);
+      channel.publish(config.exchange, routingKey, new Buffer(message), options, callback);
     },
 
     /**
@@ -99,7 +102,7 @@ module.exports = function(params) {
         }
       }
 
-      channel.consume(params.queues.consume.name, callback, {noAck: false});
+      channel.consume(config.queues.consume.name, callback, {noAck: false});
     }
   };
 
