@@ -12,27 +12,32 @@ Handles assert/declare of queues.
 ```javascript
 var AMQP = require('amqp-wrapper');
 
-var queues = {
-  consume: {
-    name: process.env.AMQP_CONSUME,
-    options: {deadLetterExchange: process.env.AMQP_DEAD_LETTER_EXCHANGE}
-  },
-  publish: [
-    {
-      name: process.env.AMQP_RESPONSE,
-      routingKey: process.env.AMQP_RESPONSE_ROUTING_KEY,
-      options: {/* ... */} // options passed to ch.assertQueue() in wrapped lib.
+var config = {
+  url: process.env.AMQP_URL,
+  exchange: process.env.AMQP_EXCHANGE,
+  queues: {
+    consume: {
+      name: process.env.AMQP_CONSUME,
+      options: {deadLetterExchange: process.env.AMQP_DEAD_LETTER_EXCHANGE}
     },
-    { // ...
-    }
-  ]
+    publish: [
+      {
+        name: process.env.AMQP_RESPONSE,
+        routingKey: process.env.AMQP_RESPONSE_ROUTING_KEY,
+        options: {/* ... */} // options passed to ch.assertQueue() in wrapped lib.
+      },
+      { // ...
+      }
+    ]
+  },
+  // Set the QOS/prefetch.
+  prefetch: 100
 };
 
-AMQP.connect(process.env.AMQP_URL, process.env.AMQP_EXCHANGE,
-    queues, amqpConnectDone);
+var amqp = AMQP(config);
 
-// Set the QOS/prefetch.
-AMQP.prefetch(100);
+// Must call this before you consume/publish/etc...
+amqp.connect(amqpConnectDone);
 
 // Consuming
 var handleMessage = function(message, callback) {
@@ -46,13 +51,13 @@ callback(err, requeue)
 // If an exception occurs in handleMessage, then the message is `nack`ed and not requeued.
 
 // Start consuming:
-AMQP.consume(handleMessage);
+amqp.consume(handleMessage);
 
 // Publishing to one of the queues declared on connect.
-AMQP.publishToQueue(name, payload, done);
+amqp.publishToQueue(name, payload, done);
 
 // Publishing to arbitrary routing key.
-AMQP.publish(routingKey, payload, options, done);
+amqp.publish(routingKey, payload, options, done);
 
 If `payload` is an object, it will be turned into JSON.
 ```

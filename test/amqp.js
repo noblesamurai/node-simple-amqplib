@@ -1,149 +1,127 @@
 var SandboxedModule = require('sandboxed-module'),
-    expect = require('chai').expect,
-    sinon = require('sinon'),
-    $ = require('lodash');
+    expect = require('expect.js'),
+    Sinon = require('sinon'),
+    AMQP = require('../amqp');
 
 describe('AMQP', function() {
-  var AMQP;
-  beforeEach(function() {
-    AMQP = require('../amqp');
-  });
+  var config = {
+    url: 'amqp://guest:guest@localhost',
+    exchange: 'mytestexchange',
+    queues: {
+      consume: {
+        name: 'myconsumequeue'
+      },
+      publish: [
+        {
+          name: 'mypublishqueue',
+          routingKey: 'mypublishqueuerk'
+        }
+      ]
+    }
+  };
   describe('#connect', function() {
     it('should call the callback successfully', function(done) {
-      AMQP.connect('amqp://guest:guest@localhost', 'mytestexchange', {
-        consume: {
-          name: 'myconsumequeue'
-        },
-        publish: [
-          {
-            name: 'mypublishqueue',
-            routingKey: 'mypublishqueuerk'
-          }
-        ]
-      }, done);
+      var amqp = AMQP(config);
+      amqp.connect(done);
     });
     it('should setup for publishing and consuming', function(done) {
-      AMQP.replaceSetupFuncs(sinon.spy(), sinon.spy());
-      AMQP.connect('amqp://guest:guest@localhost', 'mytestexchange', {
-        consume: {name: 'myconsumequeue2'},
-        publish: [
-          {
-            name: 'mypublishqueue2',
-            routingKey: 'mypublishqueue2'
-          }
-        ]
-      }, function(err) {
+      var queueSetup = require('../queue-setup');
+      var amqp = AMQP(config);
+      Sinon.stub(queueSetup, 'setupForConsume');
+      Sinon.stub(queueSetup, 'setupForPublish');
+      amqp.connect(function(err) {
         if (err) return done(err);
-        expect(AMQP.getSetupFuncs().consume.calledOnce, 'setupForConsume()').to.
-            equal(true);
-        expect(AMQP.getSetupFuncs().publish.calledOnce, 'setupForPublish()').to.
-            equal(true);
+        expect(queueSetup.setupForConsume.calledOnce).to.be(true);
+        expect(queueSetup.setupForPublish.calledOnce).to.be(true);
         done();
       });
     });
   });
   describe('#publishToQueue', function() {
     it('should call the callback successfully', function(done) {
-      AMQP.connect('amqp://guest:guest@localhost', 'mytestexchange', {
-        publish: [
-          {
-            name: 'myqueue',
-            routingKey: 'myqueuekey'
-          }
-        ]
-      }, function(err, res) {
+      var amqp = AMQP(config);
+      amqp.connect(function(err) {
         if (err) return done(err);
-        AMQP.publishToQueue('myqueue', 'test', done);
+        amqp.publishToQueue('mypublishqueue', 'test', done);
       });
     });
   });
   describe('#publish', function() {
     it('should call the callback successfully', function(done) {
-      AMQP.connect('amqp://guest:guest@localhost', 'mytestexchange', {},
-          function(err, res) {
+      var amqp = AMQP(config);
+      amqp.connect(function(err) {
         if (err) return done(err);
-        AMQP.publish('myqueue', 'test', {}, done);
+        amqp.publish('myqueue', 'test', {}, done);
       });
     });
     it('should accept objects', function(done) {
-      AMQP.connect('amqp://guest:guest@localhost', 'mytestexchange', {},
-          function(err, res) {
+      var amqp = AMQP(config);
+      amqp.connect(function(err) {
         if (err) return done(err);
-        AMQP.publish('myqueue', {woo: 'test'}, {}, done);
+        amqp.publish('myqueue', {woo: 'test'}, {}, done);
       });
     });
   });
   describe('#consume', function() {
-    function createMockedModuleObject(messageToDeliver, additionals) {
-      var channelMock = {
-        consume: function (a, handleMessage, b) {
-          handleMessage({
-            content: {
-              toString: function() {return messageToDeliver;}
-            }
-          });
-        }
-      };
-
-      return {
-        locals: {
-          channel: $.extend(channelMock, additionals)
-        }
-      };
-    }
-
-    it('if done(err) is called with err === null, calls ack().',
-        function(done) {
-      var ackSpy = sinon.spy(function(message) {
+    it('if done(err) is called with err === null, calls ack().', function(done) {
+      var ackSpy = Sinon.spy(function(message) {
         done();
       });
       var mockedAMQP = SandboxedModule.require('../amqp',
         // message will be {}. Mock out 'ack' method.
-        createMockedModuleObject('{}', {ack: ackSpy}));
-      mockedAMQP.queueParams({consume: {}});
+        require('./amqplibmock')('{}', {ack: ackSpy})
+      )(config);
 
       function myMessageHandler(parsedMsg, cb) {
         cb();
       }
 
-      mockedAMQP.consume(myMessageHandler);
+      mockedAMQP.connect(function(err) {
+        if(err) return done(err);
+        mockedAMQP.consume(myMessageHandler);
+      });
     });
 
     it('if json unparsable, calls nack() with requeue of false.',
         function(done) {
-      var nackSpy = sinon.spy(function(message, upTo, requeue) {
+      var nackSpy = Sinon.spy(function(message, upTo, requeue) {
         expect(requeue).to.equal(false);
         done();
       });
 
       var mockedAMQP = SandboxedModule.require('../amqp',
         // message will be invalid json. Mock out 'nack' method.
-        createMockedModuleObject('nonvalidjson', {nack: nackSpy}));
-      mockedAMQP.queueParams({consume: {}});
+        require('./amqplibmock')('nonvalidjson', {nack: nackSpy})
+      )(config);
 
       function myMessageHandler(parsedMsg, cb) {
         cb();
       }
 
-      mockedAMQP.consume(myMessageHandler);
+      mockedAMQP.connect(function(err) {
+        if(err) return done(err);
+        mockedAMQP.consume(myMessageHandler);
+      });
     });
     it('if json callback called with err, calls nack() with requeue as given.',
         function(done) {
-      var nackSpy = sinon.spy(function(message, upTo, requeue) {
+      var nackSpy = Sinon.spy(function(message, upTo, requeue) {
         expect(requeue).to.equal('requeue');
         done();
       });
-      var mockedAMQP = SandboxedModule.require('../amqp',
-        // message will be {}. Mock out 'nack' method.
-        createMockedModuleObject('{}', {nack: nackSpy}));
-      mockedAMQP.queueParams({consume: {}});
 
+      var mockedAMQP = SandboxedModule.require('../amqp',
+        require('./amqplibmock')('{}', {nack: nackSpy})
+      )(config);
 
       function myMessageHandler(parsedMsg, cb) {
         cb(new Error('got it bad'), 'requeue');
       }
 
-      mockedAMQP.consume(myMessageHandler);
+      mockedAMQP.connect(function(err) {
+        if(err) return done(err);
+        mockedAMQP.consume(myMessageHandler);
+      });
     });
   });
 });
