@@ -1,24 +1,20 @@
-var Q = require('q'),
-    async = require('async'),
+var async = require('async'),
     debug = require('debug')('amqp-wrapper');
 
-function declareDeadLetters(channel, queue) {
-  if (queue.options && queue.options.deadLetterExchange) {
-    var dlName = queue.name + '-dead-letter';
-    return Q(channel.assertQueue(dlName, {})).then(function() {
-      return channel.bindQueue(dlName,
-        queue.options.deadLetterExchange,
-        queue.options.deadLetterExchangeRoutingKey || queue.options.routingKey).
-      then(function() {
-        return Q();
-      });
-    },
-    function(reason) {
-      throw(reason);
-    });
-  } else {
-    return Q();
+function maybeDeclareDeadLetters(channel, queue, callback) {
+  if (!queue.options || !queue.options.deadLetterExchange) {
+    return callback();
   }
+
+  var qName = queue.name + '-dead-letter';
+  async.series([
+    channel.assertExchange.bind(channel, queue.options.deadLetterExchange, 'topic', {}),
+    channel.assertQueue.bind(channel, qName, {}),
+    channel.bindQueue.bind(channel, qName,
+      queue.options.deadLetterExchange,
+      queue.options.deadLetterExchangeRoutingKey || queue.options.routingKey,
+      {}),
+  ],  callback);
 }
 
 /**
@@ -26,19 +22,16 @@ function declareDeadLetters(channel, queue) {
  * key we are going to use.
  */
 exports.setupForPublish = function(channel, params, callback) {
-  var tasks = params.queues.publish.map(function(queue) {
-    debug('setupForPublish()', queue);
-    return function(callback) {
-      return channel.assertQueue(queue.name, queue.options, bindQueue);
-
-      function bindQueue(err) {
-        if (err) return callback(err);
-        return channel.bindQueue(queue.name,
-          params.exchange, queue.routingKey, {}, callback);
-      }
-    };
-  });
-  return async.series(tasks, callback);
+  async.each(
+    params.queues.publish,
+    function(queue, cb) {
+      debug('setupForPublish()', queue);
+      async.series([
+        async.apply(maybeDeclareDeadLetters, channel, queue),
+        channel.assertQueue.bind(channel, queue.name, queue.options),
+        channel.bindQueue.bind(channel, queue.name, params.exchange, queue.routingKey, {})
+      ], cb);
+    }, callback);
 };
 
 // For consuming, we only assert the queue is there.
