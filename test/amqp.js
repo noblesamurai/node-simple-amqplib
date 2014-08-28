@@ -14,7 +14,8 @@ describe('AMQP', function() {
       publish: [
         {
           name: 'mypublishqueue',
-          routingKey: 'mypublishqueuerk'
+          routingKey: 'mypublishqueuerk',
+          options: {deadLetterExchange: 'dlexch'}
         }
       ]
     }
@@ -34,6 +35,20 @@ describe('AMQP', function() {
         expect(queueSetup.setupForConsume.calledOnce).to.be(true);
         expect(queueSetup.setupForPublish.calledOnce).to.be(true);
         done();
+      });
+    });
+    it('should set up dead letter queues', function(done) {
+      var amqpLibMock = require('./amqplibmock')();
+      var mockedAMQP = SandboxedModule.require('../amqp', {
+        requires: {
+          'amqplib': amqpLibMock.mock
+        }
+      })(config);
+
+      mockedAMQP.connect(function(err) {
+        if(err) return done(err);
+
+        expect(amqpLibMock.assertQueueSpy.callCount).to.be(3);
       });
     });
   });
@@ -64,13 +79,17 @@ describe('AMQP', function() {
   });
   describe('#consume', function() {
     it('if done(err) is called with err === null, calls ack().', function(done) {
-      var ackSpy = Sinon.spy(function(message) {
+      // message is '{}'
+      var ack = function() {
         done();
-      });
-      var mockedAMQP = SandboxedModule.require('../amqp',
-        // message will be {}. Mock out 'ack' method.
-        require('./amqplibmock')('{}', {ack: ackSpy})
-      )(config);
+      };
+      var amqpLibMock = require('./amqplibmock')({overrides: {ack: ack}});
+
+      var mockedAMQP = SandboxedModule.require('../amqp', {
+        requires: {
+          'amqplib': amqpLibMock.mock
+        }
+      })(config);
 
       function myMessageHandler(parsedMsg, cb) {
         cb();
@@ -84,15 +103,21 @@ describe('AMQP', function() {
 
     it('if json unparsable, calls nack() with requeue of false.',
         function(done) {
-      var nackSpy = Sinon.spy(function(message, upTo, requeue) {
+      var nack = function(message, upTo, requeue) {
         expect(requeue).to.equal(false);
         done();
+      };
+
+      var amqpLibMock = require('./amqplibmock')({
+        messageToDeliver: 'nonvalidjson',
+        overrides: {nack: nack}
       });
 
-      var mockedAMQP = SandboxedModule.require('../amqp',
-        // message will be invalid json. Mock out 'nack' method.
-        require('./amqplibmock')('nonvalidjson', {nack: nackSpy})
-      )(config);
+      var mockedAMQP = SandboxedModule.require('../amqp', {
+        requires: {
+          'amqplib': amqpLibMock.mock
+        }
+      })(config);
 
       function myMessageHandler(parsedMsg, cb) {
         cb();
@@ -105,14 +130,18 @@ describe('AMQP', function() {
     });
     it('if json callback called with err, calls nack() with requeue as given.',
         function(done) {
-      var nackSpy = Sinon.spy(function(message, upTo, requeue) {
+      var nack = function(message, upTo, requeue) {
         expect(requeue).to.equal('requeue');
         done();
-      });
+      };
 
-      var mockedAMQP = SandboxedModule.require('../amqp',
-        require('./amqplibmock')('{}', {nack: nackSpy})
-      )(config);
+      var amqpLibMock = require('./amqplibmock')({overrides: {nack: nack}});
+
+      var mockedAMQP = SandboxedModule.require('../amqp', {
+        requires: {
+          'amqplib': amqpLibMock.mock
+        }
+      })(config);
 
       function myMessageHandler(parsedMsg, cb) {
         cb(new Error('got it bad'), 'requeue');
