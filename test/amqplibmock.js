@@ -4,7 +4,10 @@
 var Q = require('q'),
     Sinon = require('sinon');
 
-module.exports = function(messageToDeliver, overrides) {
+module.exports = function(config) {
+  var overrides = (config && config.overrides) || {};
+  var messageToDeliver = (config && config.messageToDeliver) || '{}';
+
   var amqpLibMock = {
     connect: connectMock
   };
@@ -30,11 +33,11 @@ module.exports = function(messageToDeliver, overrides) {
         resolve();
       });
     },
-    assertQueue: function() {
+    assertQueue: Sinon.spy(function() {
       return Q.promise(function(resolve) {
         resolve();
       });
-    },
+    }),
     prefetch: function() {
       return Q.promise(function(resolve) {
         resolve();
@@ -51,9 +54,10 @@ module.exports = function(messageToDeliver, overrides) {
   }
 
   return {
-    requires: {
-      'amqplib': amqpLibMock
-    }
+    mock: amqpLibMock,
+    assertQueueSpy: channelMock.assertQueue,
+    ackSpy: channelMock.ack,
+    nackSpy: channelMock.nack
   };
 };
 
