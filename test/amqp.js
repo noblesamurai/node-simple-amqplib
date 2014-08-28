@@ -79,10 +79,10 @@ describe('AMQP', function() {
   });
   describe('#consume', function() {
     it('if done(err) is called with err === null, calls ack().', function(done) {
-      // message is '{}'
       var ack = function() {
         done();
       };
+
       var amqpLibMock = require('./amqplibmock')({overrides: {ack: ack}});
 
       var mockedAMQP = SandboxedModule.require('../amqp', {
