@@ -37,7 +37,7 @@ describe('AMQP', function() {
         done();
       });
     });
-    it('should set up dead letter queues', function(done) {
+    it.only('should set up dead letter queues', function(done) {
       var amqpLibMock = require('./amqplibmock')();
       var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
@@ -49,6 +49,7 @@ describe('AMQP', function() {
         if(err) return done(err);
 
         expect(amqpLibMock.assertQueueSpy.callCount).to.be(3);
+        expect(amqpLibMock.bindQueueSpy.callCount).to.be(2);
       });
     });
   });

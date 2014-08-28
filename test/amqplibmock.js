@@ -38,6 +38,11 @@ module.exports = function(config) {
         resolve();
       });
     }),
+    bindQueue: Sinon.spy(function() {
+      return Q.promise(function(resolve) {
+        resolve();
+      });
+    }),
     prefetch: function() {
       return Q.promise(function(resolve) {
         resolve();
@@ -56,6 +61,7 @@ module.exports = function(config) {
   return {
     mock: amqpLibMock,
     assertQueueSpy: channelMock.assertQueue,
+    bindQueueSpy: channelMock.bindQueue,
     ackSpy: channelMock.ack,
     nackSpy: channelMock.nack
   };
