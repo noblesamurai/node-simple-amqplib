@@ -28,8 +28,8 @@ describe('AMQP', function() {
     it('should setup for publishing and consuming', function(done) {
       var queueSetup = require('../queue-setup');
       var amqp = AMQP(config);
-      Sinon.stub(queueSetup, 'setupForConsume');
-      Sinon.stub(queueSetup, 'setupForPublish');
+      Sinon.stub(queueSetup, 'setupForConsume').callsArg(2);
+      Sinon.stub(queueSetup, 'setupForPublish').callsArg(2);
       amqp.connect(function(err) {
         if (err) return done(err);
         expect(queueSetup.setupForConsume.calledOnce).to.be(true);
@@ -37,7 +37,7 @@ describe('AMQP', function() {
         done();
       });
     });
-    it.only('should set up dead letter queues', function(done) {
+    it.skip('should set up dead letter queues', function(done) {
       var amqpLibMock = require('./amqplibmock')();
       var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
@@ -88,7 +88,7 @@ describe('AMQP', function() {
 
       var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
-          'amqplib': amqpLibMock.mock
+          'amqplib/callback_api': amqpLibMock.mock
         }
       })(config);
 
@@ -116,7 +116,7 @@ describe('AMQP', function() {
 
       var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
-          'amqplib': amqpLibMock.mock
+          'amqplib/callback_api': amqpLibMock.mock
         }
       })(config);
 
@@ -140,7 +140,7 @@ describe('AMQP', function() {
 
       var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
-          'amqplib': amqpLibMock.mock
+          'amqplib/callback_api': amqpLibMock.mock
         }
       })(config);
 
