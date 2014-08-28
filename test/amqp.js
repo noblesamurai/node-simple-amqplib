@@ -26,30 +26,21 @@ describe('AMQP', function() {
       amqp.connect(done);
     });
     it('should setup for publishing and consuming', function(done) {
-      var queueSetup = require('../queue-setup');
-      var amqp = AMQP(config);
-      Sinon.stub(queueSetup, 'setupForConsume').callsArg(2);
-      Sinon.stub(queueSetup, 'setupForPublish').callsArg(2);
-      amqp.connect(function(err) {
-        if (err) return done(err);
-        expect(queueSetup.setupForConsume.calledOnce).to.be(true);
-        expect(queueSetup.setupForPublish.calledOnce).to.be(true);
-        done();
-      });
-    });
-    it.skip('should set up dead letter queues', function(done) {
       var amqpLibMock = require('./amqplibmock')();
       var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
-          'amqplib': amqpLibMock.mock
+          'amqplib/callback_api': amqpLibMock.mock
         }
       })(config);
 
       mockedAMQP.connect(function(err) {
         if(err) return done(err);
 
+        // two queues, one of which is dead lettered
         expect(amqpLibMock.assertQueueSpy.callCount).to.be(3);
+        // Bind the publishing queue, and its dead letter queue.
         expect(amqpLibMock.bindQueueSpy.callCount).to.be(2);
+        done();
       });
     });
   });
