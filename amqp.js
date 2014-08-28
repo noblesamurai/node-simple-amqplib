@@ -1,7 +1,8 @@
-var amqp = require('amqplib'),
-    Q = require('q'),
+var amqp = require('amqplib/callback_api'),
     _ = require('lodash'),
-    queueSetup = require('./queue-setup');
+    async = require('async'),
+    queueSetup = require('./queue-setup'),
+    debug = require('debug')('amqp-wrapper');
 
 module.exports = function(config) {
   if (!config || !config.url || !config.exchange) {
@@ -14,32 +15,40 @@ module.exports = function(config) {
 
   var ret = {
     /**
-     * Passes the AMQP channel created to the callback.
+     * Connects and remembers the channel.
      */
     connect: function(cb) {
-      // amqp.connect throws on some error conditions, rather than resolving the
-      // promise.  Hence the need for the try/catch.
-      try {
-        Q(amqp.connect(config.url))
-        .then(function(conn) {
-          return conn.createConfirmChannel();
-        })
-        .then(function(ch) {
-          channel = ch;
+      amqp.connect(config.url, createChannel);
 
-          var promise = ch.assertExchange(config.exchange, 'topic');
-          if (config.queues.publish && config.queues.publish instanceof Array) {
-            promise = promise.then(queueSetup.setupForPublish(ch, config));
-          }
-          if (config.queues.consume && config.queues.consume.name) {
-            promise = promise.then(queueSetup.setupForConsume(ch, config));
-          }
-          return promise;
-        }).nodeify(cb);
+      function createChannel(err, conn) {
+        debug('createChannel()');
+        if (err) return cb(err);
+
+        conn.createConfirmChannel(assertExchange);
       }
-      catch (e) {
-        console.log('Exception thrown in AMQP connection and setup.');
-        cb(e);
+
+      function assertExchange(err, ch) {
+        debug('assertExchange()', ch);
+        if (err) return cb(err);
+        channel = ch;
+
+        channel.assertExchange(config.exchange, 'topic', {}, assertQueues);
+      }
+
+      function assertQueues(err) {
+        debug('assertQueues()');
+        var tasks = [];
+        if (config.queues.publish && config.queues.publish instanceof Array) {
+          tasks.push(function(callback) {
+            queueSetup.setupForPublish(channel, config, callback);
+          });
+        }
+        if (config.queues.consume && config.queues.consume.name) {
+          tasks.push(function(callback) {
+            queueSetup.setupForConsume(channel, config, callback);
+          });
+        }
+        async.series(tasks, cb);
       }
     },
 
@@ -65,6 +74,7 @@ module.exports = function(config) {
      * @param {Function(err)} The callback to call when done.
      */
     publish: function(routingKey, message, options, callback) {
+      debug('publish()');
       if (typeof message === 'object') message = JSON.stringify(message);
       channel.publish(config.exchange, routingKey, new Buffer(message), options, callback);
     },
@@ -82,6 +92,7 @@ module.exports = function(config) {
      * cf http://squaremo.github.io/amqp.node/doc/channel_api.html#toc_34
      */
     consume: function(handleMessage) {
+      debug('consume()');
       function callback(message) {
         function done(err, requeue) {
           if (requeue === undefined) requeue = false;
