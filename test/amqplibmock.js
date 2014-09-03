@@ -4,56 +4,38 @@
 var Q = require('q'),
     Sinon = require('sinon');
 
-module.exports = function(messageToDeliver, overrides) {
-  var amqpLibMock = {
-    connect: connectMock
-  };
-
-  function connectMock(url) {
-    return Q.promise(function(resolve) {
-      resolve({
-        createConfirmChannel: createConfirmChannelMock
-      });
-    });
-  }
+module.exports = function(config) {
+  var overrides = (config && config.overrides) || {};
+  var messageToDeliver = (config && config.messageToDeliver) || '{}';
 
   var channelMock = {
-    consume: function (a, handleMessage, b) {
-      handleMessage({
-        content: {
-          toString: function() {return messageToDeliver;}
-        }
-      });
-    },
-    assertExchange: function() {
-      return Q.promise(function(resolve) {
-        resolve();
-      });
-    },
-    assertQueue: function() {
-      return Q.promise(function(resolve) {
-        resolve();
-      });
-    },
-    prefetch: function() {
-      return Q.promise(function(resolve) {
-        resolve();
-      });
-    },
+    consume: Sinon.stub().yields({
+      content: {
+        toString: function() {return messageToDeliver;}
+      }
+    }),
+    assertExchange: Sinon.stub().callsArg(3),
+    assertQueue: Sinon.stub().callsArg(2),
+    bindQueue: Sinon.stub().callsArg(4),
+    prefetch: Sinon.spy(),
     ack: overrides.ack || Sinon.spy(),
     nack: overrides.nack || Sinon.spy()
   };
 
-  function createConfirmChannelMock() {
-    return Q.promise(function(resolve) {
-      resolve(channelMock);
-    });
-  }
+  var amqpLibMock = {
+    connect: Sinon.stub().yields(null, {
+      createConfirmChannel: Sinon.stub().yields(null, channelMock)
+    })
+  };
+
 
   return {
-    requires: {
-      'amqplib': amqpLibMock
-    }
+    mock: amqpLibMock,
+    assertQueueSpy: channelMock.assertQueue,
+    bindQueueSpy: channelMock.bindQueue,
+    ackSpy: channelMock.ack,
+    nackSpy: channelMock.nack,
+    channelMock: channelMock
   };
 };
 
