@@ -6,7 +6,7 @@ function maybeDeclareDeadLetters(channel, queue, callback) {
     return callback();
   }
 
-  var qName = queue.name + '-dead-letter';
+  var qName = queue.name + (queue.options.deadLetterQueueSuffix || '-dead-letter');
   async.series([
     channel.assertExchange.bind(channel, queue.options.deadLetterExchange, 'topic', {}),
     channel.assertQueue.bind(channel, qName, {}),
