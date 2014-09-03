@@ -6,7 +6,21 @@ A simple wrapper to https://github.com/squaremo/amqp.node.
 Allows you to have any number of publish queues, one consume queue and to perform
 consume and publish operations.
 
-Handles assert/declare of queues.
+- All queues will be declared (made to exist).
+- If you specify a routing key for a publish queue, then a binding will be set up
+  (I.e. a mapping that tells AMQP to route message with that routing key to that
+  queue on the exchange you have specified).
+- Any options you specify at the per-queue level are passed directly through to
+  ch.assertQueue in the underlying library.  If you want to set up dead lettering,
+  for example, then pass the `deadLetterExchange` option which will cause the queue
+  to be declared with that dead letter exchange.
+- `deadLetterExchange` and `deadLetterRoutingKey` are special options, in that
+  as well as being passed through to `ch.assertQueue()` to ensure the dead
+  lettering behaviour occurs, a queue will be declared of the same name with
+  the `-dead-letter` suffix, with a binding declared on the dead letter
+  exchange for the dead letter routing key.  This means that when a message is dead
+  lettered on that queue it will have somewhere to go without you having to set up
+  a dead lettering queue manually.
 
 # Example usage
 ```javascript
@@ -18,13 +32,13 @@ var config = {
   queues: {
     consume: {
       name: process.env.AMQP_CONSUME,
-      options: {deadLetterExchange: process.env.AMQP_DEAD_LETTER_EXCHANGE}
+      options: {/* ... */} // options passed to ch.assertQueue() in wrapped lib.
     },
     publish: [
       {
         name: process.env.AMQP_RESPONSE,
         routingKey: process.env.AMQP_RESPONSE_ROUTING_KEY,
-        options: {/* ... */} // options passed to ch.assertQueue() in wrapped lib.
+        options: {deadLetterExchange: process.env.AMQP_DEAD_LETTER_EXCHANGE}
       },
       { // ...
       }
