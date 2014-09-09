@@ -1,0 +1,18 @@
+{
+  "url": "amqp://guest:guest@localhost",
+  "exchange": "mytestexchange",
+  "queues": {
+    "consume": {
+      "name": "myconsumequeue"
+    },
+    "publish": [
+      {
+        "name": "mypublishqueue",
+        "routingKey": "mypublishqueuerk",
+        "options": {
+          "deadLetterExchange": "dlexch"
+        }
+      }
+    ]
+  }
+}
