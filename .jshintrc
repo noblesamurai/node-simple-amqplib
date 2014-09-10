@@ -9,5 +9,14 @@
   "unused":    true,
   "onecase":   true,
   "indent":    2,
-  "sub":       true
+  "sub":       true,
+  "globals"   : {
+    /* MOCHA */
+    "describe"   : false,
+    "it"         : false,
+    "before"     : false,
+    "beforeEach" : false,
+    "after"      : false,
+    "afterEach"  : false
+  }
 }

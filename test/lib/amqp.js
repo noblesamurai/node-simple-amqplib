@@ -1,34 +1,31 @@
 'use strict';
 
 var SandboxedModule = require('sandboxed-module');
-var Lab = require('lab');
 var AMQP = require('../../lib/amqp');
 
-var it = Lab.test;
-var expect = Lab.expect;
-var describe = Lab.experiment;
+var expect = require('expect.js');
 
 describe('AMQP', function() {
   var config = require('../config');
   describe('#constructor', function() {
     it('should throw with empty constructor', function(done) {
       expect(function() { AMQP(); }).to
-        .throw('amqp-wrapper: Invalid config');
+        .throwError('amqp-wrapper: Invalid config');
       done();
     });
     it('should throw with no url or exchange', function(done) {
       expect(function() { AMQP({}); }).to
-        .throw('amqp-wrapper: Invalid config');
+        .throwError('amqp-wrapper: Invalid config');
       done();
     });
     it('should throw with no url', function(done) {
       expect(function() { AMQP({exchange: ''}); }).to
-        .throw('amqp-wrapper: Invalid config');
+        .throwError('amqp-wrapper: Invalid config');
       done();
     });
     it('should throw with no exchange', function(done) {
       expect(function() { AMQP({url: ''}); }).to
-        .throw('amqp-wrapper: Invalid config');
+        .throwError('amqp-wrapper: Invalid config');
       done();
     });
   });

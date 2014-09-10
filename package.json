@@ -4,7 +4,7 @@
   "description": "A wrapper around https://github.com/squaremo/amqp.node to make consuming and publishing dead easy.",
   "main": "amqp.js",
   "scripts": {
-    "test": "lab -c",
+    "test": "istanbul cover _mocha -- test/lib",
     "jshint": "jshint -c .jshintrc --exclude-path .gitignore .",
     "codestyle": "jscs -p google lib/ test/"
   },
@@ -30,12 +30,14 @@
     "json-stringify-safe": "^5.0.0"
   },
   "devDependencies": {
-    "lodash": "^2.4.1",
-    "pre-commit": "^0.0.9",
-    "jshint": "^2.5.5",
+    "expect.js": "^0.3.1",
+    "istanbul": "^0.3.2",
     "jscs": "^1.6.1",
+    "jshint": "^2.5.5",
+    "lodash": "^2.4.1",
+    "mocha": "^1.21.4",
+    "pre-commit": "^0.0.9",
     "sandboxed-module": "^0.3.0",
-    "lab": "^3.2.1",
     "sinon": "^1.10.3"
   },
   "pre-commit": [
