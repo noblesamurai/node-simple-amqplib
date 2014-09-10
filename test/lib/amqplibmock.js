@@ -1,8 +1,9 @@
+'use strict';
+
 /**
  * This is a mock for the underlying amqplib library that we are wrapping.
  */
-var Q = require('q'),
-    Sinon = require('sinon');
+var Sinon = require('sinon');
 
 module.exports = function(config) {
   var overrides = (config && config.overrides) || {};
@@ -28,7 +29,6 @@ module.exports = function(config) {
     })
   };
 
-
   return {
     mock: amqpLibMock,
     assertQueueSpy: channelMock.assertQueue,
@@ -38,5 +38,3 @@ module.exports = function(config) {
     channelMock: channelMock
   };
 };
-
-// vim: set et sw=2 ts=2 colorcolumn=80:
