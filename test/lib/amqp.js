@@ -1,7 +1,7 @@
 'use strict';
 
 var SandboxedModule = require('sandboxed-module');
-var AMQP = require('../../lib/amqp');
+var AMQP = require('../../amqp');
 
 var expect = require('expect.js');
 
@@ -46,7 +46,7 @@ describe('AMQP', function() {
     });
     it('should setup for publishing and consuming', function(done) {
       var amqpLibMock = require('./amqplibmock')();
-      var mockedAMQP = SandboxedModule.require('../../lib/amqp', {
+      var mockedAMQP = SandboxedModule.require('../../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
@@ -105,7 +105,7 @@ describe('AMQP', function() {
 
       var amqpLibMock = require('./amqplibmock')({overrides: {ack: ack}});
 
-      var mockedAMQP = SandboxedModule.require('../../lib/amqp', {
+      var mockedAMQP = SandboxedModule.require('../../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
@@ -135,7 +135,7 @@ describe('AMQP', function() {
         overrides: {nack: nack}
       });
 
-      var mockedAMQP = SandboxedModule.require('../../lib/amqp', {
+      var mockedAMQP = SandboxedModule.require('../../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
@@ -161,7 +161,7 @@ describe('AMQP', function() {
 
       var amqpLibMock = require('./amqplibmock')({overrides: {nack: nack}});
 
-      var mockedAMQP = SandboxedModule.require('../../lib/amqp', {
+      var mockedAMQP = SandboxedModule.require('../../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
