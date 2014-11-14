@@ -4,7 +4,7 @@ var amqp = require('amqplib/callback_api');
 var _ = require('lodash');
 var async = require('async');
 var stringifysafe = require('json-stringify-safe');
-var queueSetup = require('./queue-setup');
+var queueSetup = require('./lib/queue-setup');
 var debug = require('debug')('amqp-wrapper');
 
 module.exports = function(config) {
