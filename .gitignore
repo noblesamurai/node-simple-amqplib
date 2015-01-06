@@ -6,6 +6,7 @@ coverage
 *.out
 *.pid
 *.gz
+*.swp
 
 pids
 logs

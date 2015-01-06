@@ -6,8 +6,9 @@ A simple wrapper to https://github.com/squaremo/amqp.node.
 Allows you to have any number of publish queues, one consume queue and to perform
 consume and publish operations.
 
-- All queues will be declared (made to exist).
-- If you specify a routing key for a publish queue, then a binding will be set up
+- You can specify a queue which will be declared (made to exist). This will be
+  the queue from which you will consume.
+- If you specify a routing key for the queue, then a binding will be set up
   (I.e. a mapping that tells AMQP to route message with that routing key to that
   queue on the exchange you have specified).
 - Any options you specify at the per-queue level are passed directly through to
@@ -29,20 +30,10 @@ var AMQP = require('amqp-wrapper');
 var config = {
   url: process.env.AMQP_URL,
   exchange: process.env.AMQP_EXCHANGE,
-  queues: {
-    consume: {
-      name: process.env.AMQP_CONSUME,
-      options: {/* ... */} // options passed to ch.assertQueue() in wrapped lib.
-    },
-    publish: [
-      {
-        name: process.env.AMQP_RESPONSE,
-        routingKey: process.env.AMQP_RESPONSE_ROUTING_KEY,
-        options: {deadLetterExchange: process.env.AMQP_DEAD_LETTER_EXCHANGE}
-      },
-      { // ...
-      }
-    ]
+  queue: {
+    name: process.env.AMQP_CONSUME,
+    routingKey: process.env.AMQP_ROUTING_KEY, // If supplied, queue is bound to this key on the exchange.
+    options: {/* ... */} // options passed to ch.assertQueue() in wrapped lib.
   },
   // Set the QOS/prefetch.
   prefetch: 100
@@ -66,9 +57,6 @@ callback(err, requeue)
 
 // Start consuming:
 amqp.consume(handleMessage);
-
-// Publishing to one of the queues declared on connect.
-amqp.publishToQueue(name, payload, done);
 
 // Publishing to arbitrary routing key.
 amqp.publish(routingKey, payload, options, done);
