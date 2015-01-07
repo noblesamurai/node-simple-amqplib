@@ -83,7 +83,7 @@ describe('AMQP', function() {
     });
     it('should just declare if you don\'t specify routing key', function(done) {
       var amqpLibMock = require('./amqplibmock')();
-      var config = require('../configNoKeyNoExchange');
+      var config = require('../configNoKey');
       var mockedAMQP = SandboxedModule.require('../../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
