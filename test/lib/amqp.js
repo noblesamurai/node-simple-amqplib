@@ -1,11 +1,28 @@
 'use strict';
 
+var exec = require('child_process').exec;
 var SandboxedModule = require('sandboxed-module');
 var AMQP = require('../../amqp');
 
 var expect = require('expect.js');
 
 describe('AMQP', function() {
+  // Set up a vhost for testing purposes so we don't pollute /.
+  before(function(done) {
+    exec('curl -u guest:guest -H "content-type:application/json" ' +
+      '-XPUT http://localhost:15672/api/vhosts/amqp-wrapper-testing', next);
+    function next(err) {
+      if (err) {
+        return done(err);
+      }
+      exec('curl -u guest:guest -H "content-type:application/json" ' +
+        '-XPUT http://localhost:15672/' +
+          'api/permissions/amqp-wrapper-testing/guest ' +
+        '-d \'{"configure":".*","write":".*","read":".*"}\'',
+        done);
+    }
+  });
+
   var config = require('../config');
   describe('#constructor', function() {
     it('should throw with empty constructor', function(done) {
@@ -44,7 +61,7 @@ describe('AMQP', function() {
       var amqp = AMQP(config);
       amqp.connect(done);
     });
-    it('should setup for publishing and consuming', function(done) {
+    it('should declare your queue, and bind it', function(done) {
       var amqpLibMock = require('./amqplibmock')();
       var mockedAMQP = SandboxedModule.require('../../amqp', {
         requires: {
@@ -57,22 +74,32 @@ describe('AMQP', function() {
           return done(err);
         }
 
-        // two queues, one of which is dead lettered
-        expect(amqpLibMock.assertQueueSpy.callCount).to.equal(3);
-        // Bind the publishing queue, and its dead letter queue.
+        // one queue, dead lettered
+        expect(amqpLibMock.assertQueueSpy.callCount).to.equal(2);
+        // Bind the consume queue, and its dead letter queue.
         expect(amqpLibMock.bindQueueSpy.callCount).to.equal(2);
         done();
       });
     });
-  });
-  describe('#publishToQueue', function() {
-    it('should call the callback successfully', function(done) {
-      var amqp = AMQP(config);
-      amqp.connect(function(err) {
+    it('should just declare if you don\'t specify routing key', function(done) {
+      var amqpLibMock = require('./amqplibmock')();
+      var config = require('../configNoKey');
+      var mockedAMQP = SandboxedModule.require('../../amqp', {
+        requires: {
+          'amqplib/callback_api': amqpLibMock.mock
+        }
+      })(config);
+
+      mockedAMQP.connect(function(err) {
         if (err) {
           return done(err);
         }
-        amqp.publishToQueue('mypublishqueue', 'test', done);
+
+        // one queue, not dead lettered
+        expect(amqpLibMock.assertQueueSpy.callCount).to.equal(1);
+        // No binding.
+        expect(amqpLibMock.bindQueueSpy.callCount).to.equal(0);
+        done();
       });
     });
   });
@@ -180,3 +207,5 @@ describe('AMQP', function() {
     });
   });
 });
+
+// vim: set et sw=2 colorcolumn=80:

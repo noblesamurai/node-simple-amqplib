@@ -1,8 +1,6 @@
 'use strict';
 
 var amqp = require('amqplib/callback_api');
-var _ = require('lodash');
-var async = require('async');
 var stringifysafe = require('json-stringify-safe');
 var queueSetup = require('./lib/queue-setup');
 var debug = require('debug')('amqp-wrapper');
@@ -47,34 +45,12 @@ module.exports = function(config) {
         if (err) {
           return cb(err);
         }
-        var tasks = [];
-        if (config.queues.publish && config.queues.publish instanceof Array) {
-          tasks.push(function(callback) {
-            queueSetup.setupForPublish(channel, config, callback);
-          });
+        if (config.queue && config.queue.name) {
+          queueSetup.setupForConsume(channel, config, cb);
+        } else {
+          cb();
         }
-        if (config.queues.consume && config.queues.consume.name) {
-          tasks.push(function(callback) {
-            queueSetup.setupForConsume(channel, config, callback);
-          });
-        }
-        async.series(tasks, cb);
       }
-    },
-
-    /**
-     * Publish a message to one of the AMQP queues specified on connect.
-     * @param {string} name The name of the queue to use.
-     * @param {string} message The message to publish.
-     * @param {Function(err)} callback The callback to call when done.
-     */
-    publishToQueue: function(name, message, callback) {
-      if (typeof message === 'object') {
-        message = stringifysafe(message);
-      }
-      var publishQueue = _.find(config.queues.publish, {'name': name});
-      channel.publish(config.exchange, publishQueue.routingKey,
-          new Buffer(message), {}, callback);
     },
 
     /**
@@ -133,9 +109,11 @@ module.exports = function(config) {
         }
       }
 
-      channel.consume(config.queues.consume.name, callback, {noAck: false});
+      channel.consume(config.queue.name, callback, {noAck: false});
     }
   };
 
   return ret;
 };
+
+// vim: set et sw=2:
