@@ -1,5 +1,10 @@
+var execSync = require('exec-sync');
+
+var response = execSync('boot2docker ip', true);
+var dockerhost = response.stderr ? 'localhost' : response.stdout;
+
 module.exports = {
-  url: 'amqp://guest:guest@localhost/amqp-wrapper-testing',
+  url: 'amqp://guest:guest@' + dockerhost,
   exchange: 'mytestexchange',
   queue: {
     name: 'myconsumequeue',
@@ -7,3 +12,5 @@ module.exports = {
     options: {deadLetterExchange: 'wow'}
   }
 };
+
+// vim: set et sw=2:
