@@ -64,6 +64,22 @@ amqp.publish(routingKey, payload, options, done);
 
 If `payload` is an object, it will be turned into JSON.
 
+# Tests
+Start a rabbit server, preferably a 'throw away' one with fresh state.  You can
+do this like so if you have docker:
+```bash
+docker run --rm -p 5672:5672 dockerfile/rabbitmq
+```
+Then:
+```
+npm test
+```
+
+Note that `tests/config.js` currently assumes you are using `boot2docker` (on a
+Mac) so you may need to hack that stuff (or it may just work as it should just
+use localhost if it's not there... unproven though.)
+
+
 # License
 
 (The MIT License)
