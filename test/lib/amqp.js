@@ -1,28 +1,11 @@
 'use strict';
 
-var exec = require('child_process').exec;
 var SandboxedModule = require('sandboxed-module');
 var AMQP = require('../../amqp');
 
 var expect = require('expect.js');
 
 describe('AMQP', function() {
-  // Set up a vhost for testing purposes so we don't pollute /.
-  before(function(done) {
-    exec('curl -u guest:guest -H "content-type:application/json" ' +
-      '-XPUT http://localhost:15672/api/vhosts/amqp-wrapper-testing', next);
-    function next(err) {
-      if (err) {
-        return done(err);
-      }
-      exec('curl -u guest:guest -H "content-type:application/json" ' +
-        '-XPUT http://localhost:15672/' +
-          'api/permissions/amqp-wrapper-testing/guest ' +
-        '-d \'{"configure":".*","write":".*","read":".*"}\'',
-        done);
-    }
-  });
-
   var config = require('../config');
   describe('#constructor', function() {
     it('should throw with empty constructor', function(done) {
