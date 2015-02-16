@@ -84,7 +84,7 @@ module.exports = function(config) {
      *
      * cf http://squaremo.github.io/amqp.node/doc/channel_api.html#toc_34
      */
-    consume: function(handleMessage) {
+    consume: function(handleMessage, options) {
       debug('consume()');
       function callback(message) {
         function done(err, requeue) {
@@ -110,7 +110,7 @@ module.exports = function(config) {
         }
       }
 
-      channel.consume(config.queue.name, callback, {noAck: false});
+      channel.consume(config.queue.name, callback, options);
     }
   };
 
