@@ -10,7 +10,7 @@ module.exports = function(config) {
     throw new Error('amqp-wrapper: Invalid config');
   }
 
-  var channel;
+  var connection, channel;
 
   var prefetch = config.prefetch || 10;
 
@@ -26,6 +26,7 @@ module.exports = function(config) {
         if (err) {
           return cb(err);
         }
+        connection = conn;
 
         conn.createConfirmChannel(assertExchange);
       }
@@ -52,6 +53,13 @@ module.exports = function(config) {
           cb();
         }
       }
+    },
+
+    close:  function(cb) {
+      if (connection) {
+        return connection.close(cb);
+      }
+      cb();
     },
 
     /**
