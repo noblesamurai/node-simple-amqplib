@@ -55,7 +55,7 @@ module.exports = function(config) {
       }
     },
 
-    close:  function(cb) {
+    close: function(cb) {
       if (connection) {
         return connection.close(cb);
       }
