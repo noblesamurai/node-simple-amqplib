@@ -7,6 +7,7 @@ var expect = require('expect.js');
 
 describe('AMQP', function() {
   var config = require('../config');
+  var configRKArray = require('../configRKArray');
   describe('#constructor', function() {
     it('should throw with empty constructor', function(done) {
       expect(function() { AMQP(); }).to
@@ -63,6 +64,29 @@ describe('AMQP', function() {
         expect(amqpLibMock.bindQueueSpy.callCount).to.equal(2);
         done();
       });
+    });
+    it('allows you to specify an array for routingKey and binds each given',
+        function(done) {
+      var amqpLibMock = require('./amqplibmock')();
+      var mockedAMQP = SandboxedModule.require('../../amqp', {
+        requires: {
+          'amqplib/callback_api': amqpLibMock.mock
+        }
+      })(configRKArray);
+
+      mockedAMQP.connect(function(err) {
+        if (err) {
+          return done(err);
+        }
+
+        // one queue, dead lettered
+        expect(amqpLibMock.assertQueueSpy.callCount).to.equal(2);
+        // Bind the consume queue with its two routing keys, and its dead
+        // letter queue.
+        expect(amqpLibMock.bindQueueSpy.callCount).to.equal(4);
+        done();
+      });
+
     });
     it('should just declare if you don\'t specify routing key', function(done) {
       var amqpLibMock = require('./amqplibmock')();
