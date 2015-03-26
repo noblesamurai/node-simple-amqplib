@@ -32,7 +32,9 @@ var config = {
   exchange: process.env.AMQP_EXCHANGE,
   queue: {
     name: process.env.AMQP_CONSUME,
-    routingKey: process.env.AMQP_ROUTING_KEY, // If supplied, queue is bound to this key on the exchange.
+    routingKey: process.env.AMQP_ROUTING_KEY, // If supplied, queue is bound to
+    // this key (or keys) on the exchange. NB Can be an array of string or just
+    // a string.
     options: {/* ... */} // options passed to ch.assertQueue() in wrapped lib.
   },
   // Set the QOS/prefetch.
