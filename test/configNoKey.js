@@ -1,5 +1,5 @@
 module.exports = {
-  url: '
+  url: process.env.AMQP_URL || '
   exchange: 'hasone',
   queue: {
     name: 'myconsumequeue',
