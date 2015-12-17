@@ -1,5 +1,5 @@
 module.exports = {
-  url: 'amqp://guest:guest@localhost/amqp-wrapper-testing',
+  url: process.env.AMQP_URL || 'amqp://guest:guest@localhost',
   exchange: 'hasone',
   queue: {
     name: 'myconsumequeue',

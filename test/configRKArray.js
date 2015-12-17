@@ -1,10 +1,5 @@
-var execSync = require('exec-sync');
-
-var response = execSync('boot2docker ip', true);
-var dockerhost = response.stderr ? 'localhost' : response.stdout;
-
 module.exports = {
-  url: 'amqp://guest:guest@' + dockerhost,
+  url: process.env.AMQP_URL || 'amqp://guest:guest@localhost',
   exchange: 'mytestexchange',
   queue: {
     name: 'myconsumequeue',
