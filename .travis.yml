@@ -5,3 +5,4 @@ node_js:
   - "4.2"
 services:
   - rabbitmq
+sudo: false
