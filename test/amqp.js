@@ -1,13 +1,13 @@
 'use strict';
 
 var SandboxedModule = require('sandboxed-module');
-var AMQP = require('../../amqp');
+var AMQP = require('../amqp');
 
 var expect = require('expect.js');
 
 describe('AMQP', function() {
-  var config = require('../config');
-  var configRKArray = require('../configRKArray');
+  var config = require('./config');
+  var configRKArray = require('./configRKArray');
   describe('#constructor', function() {
     it('should throw with empty constructor', function(done) {
       expect(function() { AMQP(); }).to
@@ -46,8 +46,8 @@ describe('AMQP', function() {
       amqp.connect(done);
     });
     it('should declare your queue, and bind it', function(done) {
-      var amqpLibMock = require('./amqplibmock')();
-      var mockedAMQP = SandboxedModule.require('../../amqp', {
+      var amqpLibMock = require('./lib/amqplibmock')();
+      var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
@@ -67,8 +67,8 @@ describe('AMQP', function() {
     });
     it('allows you to specify an array for routingKey and binds each given',
         function(done) {
-      var amqpLibMock = require('./amqplibmock')();
-      var mockedAMQP = SandboxedModule.require('../../amqp', {
+      var amqpLibMock = require('./lib/amqplibmock')();
+      var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
@@ -89,9 +89,9 @@ describe('AMQP', function() {
 
     });
     it('should just declare if you don\'t specify routing key', function(done) {
-      var amqpLibMock = require('./amqplibmock')();
-      var config = require('../configNoKey');
-      var mockedAMQP = SandboxedModule.require('../../amqp', {
+      var amqpLibMock = require('./lib/amqplibmock')();
+      var config = require('./configNoKey');
+      var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
@@ -137,9 +137,9 @@ describe('AMQP', function() {
         done();
       };
 
-      var amqpLibMock = require('./amqplibmock')({overrides: {ack: ack}});
+      var amqpLibMock = require('./lib/amqplibmock')({overrides: {ack: ack}});
 
-      var mockedAMQP = SandboxedModule.require('../../amqp', {
+      var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
@@ -164,12 +164,12 @@ describe('AMQP', function() {
         done();
       };
 
-      var amqpLibMock = require('./amqplibmock')({
+      var amqpLibMock = require('./lib/amqplibmock')({
         messageToDeliver: 'nonvalidjson',
         overrides: {nack: nack}
       });
 
-      var mockedAMQP = SandboxedModule.require('../../amqp', {
+      var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
@@ -193,9 +193,9 @@ describe('AMQP', function() {
         done();
       };
 
-      var amqpLibMock = require('./amqplibmock')({overrides: {nack: nack}});
+      var amqpLibMock = require('./lib/amqplibmock')({overrides: {nack: nack}});
 
-      var mockedAMQP = SandboxedModule.require('../../amqp', {
+      var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
