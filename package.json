@@ -26,6 +26,7 @@
     "amqplib": "^0.3.0",
     "async": "^0.9.0",
     "debug": "^1.0.4",
+    "deferential": "^1.0.0",
     "json-stringify-safe": "^5.0.0",
     "q": "^1.4.1"
   },
