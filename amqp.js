@@ -1,9 +1,10 @@
 'use strict';
 
-var amqp = require('amqplib/callback_api');
-var stringifysafe = require('json-stringify-safe');
-var queueSetup = require('./lib/queue-setup');
-var debug = require('debug')('amqp-wrapper');
+var amqp = require('amqplib/callback_api'),
+    stringifysafe = require('json-stringify-safe');
+    queueSetup = require('./lib/queue-setup'),
+    debug = require('debug')('amqp-wrapper'),
+    Deferred = require('deferential');
 
 module.exports = function(config) {
   if (!config || !config.url || !config.exchange) {
@@ -19,12 +20,13 @@ module.exports = function(config) {
      * Connects and remembers the channel.
      */
     connect: function(cb) {
+      var d = Deferred();
       amqp.connect(config.url, createChannel);
 
       function createChannel(err, conn) {
         debug('createChannel()');
         if (err) {
-          return cb(err);
+          return d.reject(err);
         }
 
         conn.createConfirmChannel(assertExchange);
@@ -33,7 +35,7 @@ module.exports = function(config) {
       function assertExchange(err, ch) {
         debug('assertExchange()', ch);
         if (err) {
-          return cb(err);
+          return d.reject(err);
         }
         channel = ch;
 
@@ -44,14 +46,15 @@ module.exports = function(config) {
       function assertQueues(err) {
         debug('assertQueues()');
         if (err) {
-          return cb(err);
+          return d.reject(err);
         }
         if (config.queue && config.queue.name) {
-          queueSetup.setupForConsume(channel, config, cb);
+          queueSetup.setupForConsume(channel, config, d.resolver(cb));
         } else {
-          cb();
+          d.resolve();
         }
       }
+      return d.nodeify(cb);
     },
 
     /**
@@ -64,11 +67,14 @@ module.exports = function(config) {
      */
     publish: function(routingKey, message, options, callback) {
       debug('publish()');
+      var d = Deferred();
       if (typeof message === 'object') {
         message = stringifysafe(message);
       }
       channel.publish(config.exchange, routingKey, new Buffer(message),
-        options, callback);
+        options, d.resolver(callback));
+
+      return d.nodeify(cb);
     },
 
     /**
