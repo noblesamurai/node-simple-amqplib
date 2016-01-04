@@ -65,7 +65,7 @@ module.exports = function(config) {
      *                         publish.
      * @param {Function(err)} callback The callback to call when done.
      */
-    publish: function(routingKey, message, options, callback) {
+    publish: function(routingKey, message, options, cb) {
       debug('publish()');
       var d = Deferred();
       if (typeof message === 'object') {
