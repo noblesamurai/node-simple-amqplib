@@ -1,6 +1,6 @@
 'use strict';
 
-var AMQP = require('../amqp-promises');
+var AMQP = require('../amqp');
 
 describe('AMQP', function() {
   var config = require('./config');
