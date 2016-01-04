@@ -1,7 +1,7 @@
 'use strict';
 
 var amqp = require('amqplib/callback_api'),
-    stringifysafe = require('json-stringify-safe');
+    stringifysafe = require('json-stringify-safe'),
     queueSetup = require('./lib/queue-setup'),
     debug = require('debug')('amqp-wrapper'),
     Deferred = require('deferential');
