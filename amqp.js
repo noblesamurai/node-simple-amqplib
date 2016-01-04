@@ -72,7 +72,7 @@ module.exports = function(config) {
         message = stringifysafe(message);
       }
       channel.publish(config.exchange, routingKey, new Buffer(message),
-        options, d.resolver(callback));
+        options, d.resolver(cb));
 
       return d.nodeify(cb);
     },
