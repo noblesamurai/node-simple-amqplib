@@ -7,7 +7,6 @@ test:
     - AMQP_URL=amqp://guest:guest@rabbitmq//
   volumes:
     - ./test:/code/test
-  
 
 rabbitmq:
   image: rabbitmq
