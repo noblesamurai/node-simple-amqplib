@@ -1,13 +1,11 @@
 'use strict';
 
-var SandboxedModule = require('sandboxed-module');
-var AMQP = require('../amqp');
-
-var expect = require('expect.js');
+var SandboxedModule = require('sandboxed-module'),
+    expect = require('expect.js'),
+    AMQP = require('../amqp'),
+    config = require('./config');
 
 describe('AMQP', function() {
-  var config = require('./config');
-  var configRKArray = require('./configRKArray');
   describe('#constructor', function() {
     it('should throw with empty constructor', function(done) {
       expect(function() { AMQP(); }).to
@@ -42,7 +40,7 @@ describe('AMQP', function() {
       });
     });
     it('should call the callback successfully', function(done) {
-      var amqp = AMQP(config);
+      var amqp = AMQP(config.good);
       amqp.connect(done);
     });
     it('should declare your queue, and bind it', function(done) {
@@ -51,7 +49,7 @@ describe('AMQP', function() {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
-      })(config);
+      })(config.good);
 
       mockedAMQP.connect(function(err) {
         if (err) {
@@ -72,7 +70,7 @@ describe('AMQP', function() {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
-      })(configRKArray);
+      })(config.routingKeyArray);
 
       mockedAMQP.connect(function(err) {
         if (err) {
@@ -90,12 +88,11 @@ describe('AMQP', function() {
     });
     it('should just declare if you don\'t specify routing key', function(done) {
       var amqpLibMock = require('./lib/amqplibmock')();
-      var config = require('./configNoKey');
       var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
-      })(config);
+      })(config.noRoutingKey);
 
       mockedAMQP.connect(function(err) {
         if (err) {
@@ -112,7 +109,7 @@ describe('AMQP', function() {
   });
   describe('#publish', function() {
     it('should call the callback successfully', function(done) {
-      var amqp = AMQP(config);
+      var amqp = AMQP(config.good);
       amqp.connect(function(err) {
         if (err) {
           return done(err);
@@ -121,7 +118,7 @@ describe('AMQP', function() {
       });
     });
     it('should accept objects', function(done) {
-      var amqp = AMQP(config);
+      var amqp = AMQP(config.good);
       amqp.connect(function(err) {
         if (err) {
           return done(err);
@@ -143,7 +140,7 @@ describe('AMQP', function() {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
-      })(config);
+      })(config.good);
 
       function myMessageHandler(parsedMsg, cb) {
         cb();
@@ -173,7 +170,7 @@ describe('AMQP', function() {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
-      })(config);
+      })(config.good);
 
       function myMessageHandler(parsedMsg, cb) {
         cb();
@@ -199,7 +196,7 @@ describe('AMQP', function() {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
         }
-      })(config);
+      })(config.good);
 
       function myMessageHandler(parsedMsg, cb) {
         cb(new Error('got it bad'), 'requeue');
