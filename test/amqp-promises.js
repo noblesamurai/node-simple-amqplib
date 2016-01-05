@@ -1,11 +1,9 @@
 'use strict';
 
-var AMQP = require('../amqp');
+var AMQP = require('../amqp'),
+    config = require('./config').good;
 
 describe('AMQP', function() {
-  var config = require('./config');
-  var configRKArray = require('./configRKArray');
-
   describe('#connect', function() {
     it('should return a promise', function(done) {
       var amqp = AMQP(config);
