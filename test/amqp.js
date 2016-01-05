@@ -44,7 +44,7 @@ describe('AMQP', function() {
       amqp.connect(done);
     });
     it('should declare your queue, and bind it', function(done) {
-      var amqpLibMock = require('./lib/amqplibmock')();
+      var amqpLibMock = require('./amqplibmock')();
       var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
@@ -65,7 +65,7 @@ describe('AMQP', function() {
     });
     it('allows you to specify an array for routingKey and binds each given',
         function(done) {
-      var amqpLibMock = require('./lib/amqplibmock')();
+      var amqpLibMock = require('./amqplibmock')();
       var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
@@ -87,7 +87,7 @@ describe('AMQP', function() {
 
     });
     it('should just declare if you don\'t specify routing key', function(done) {
-      var amqpLibMock = require('./lib/amqplibmock')();
+      var amqpLibMock = require('./amqplibmock')();
       var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib/callback_api': amqpLibMock.mock
@@ -134,7 +134,7 @@ describe('AMQP', function() {
         done();
       };
 
-      var amqpLibMock = require('./lib/amqplibmock')({overrides: {ack: ack}});
+      var amqpLibMock = require('./amqplibmock')({overrides: {ack: ack}});
 
       var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
@@ -161,7 +161,7 @@ describe('AMQP', function() {
         done();
       };
 
-      var amqpLibMock = require('./lib/amqplibmock')({
+      var amqpLibMock = require('./amqplibmock')({
         messageToDeliver: 'nonvalidjson',
         overrides: {nack: nack}
       });
@@ -190,7 +190,7 @@ describe('AMQP', function() {
         done();
       };
 
-      var amqpLibMock = require('./lib/amqplibmock')({overrides: {nack: nack}});
+      var amqpLibMock = require('./amqplibmock')({overrides: {nack: nack}});
 
       var mockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
