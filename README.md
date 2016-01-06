@@ -81,6 +81,10 @@ Note that `tests/config.js` currently assumes you are using `boot2docker` (on a
 Mac) so you may need to hack that stuff (or it may just work as it should just
 use localhost if it's not there... unproven though.)
 
+# Promises
+
+`connect()` and `publish()` support promises too.  If you don't give a callback, they'll return a promise!
+
 
 # License
 
