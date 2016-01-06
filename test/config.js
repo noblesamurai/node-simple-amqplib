@@ -1,15 +1,29 @@
-var execSync = require('exec-sync');
-
-var response = execSync('boot2docker ip', true);
-var dockerhost = response.stderr ? 'localhost' : response.stdout;
-
 module.exports = {
-  url: 'amqp://guest:guest@' + dockerhost,
-  exchange: 'mytestexchange',
-  queue: {
-    name: 'myconsumequeue',
-    routingKey: 'myRoutingQueue',
-    options: {deadLetterExchange: 'wow'}
+  good: {
+    url: process.env.AMQP_URL || 'amqp://guest:guest@localhost',
+    exchange: 'mytestexchange',
+    queue: {
+      name: 'myconsumequeue',
+      routingKey: 'myRoutingQueue',
+      options: {deadLetterExchange: 'wow'}
+    }
+  },
+  noRoutingKey: {
+    url: process.env.AMQP_URL || 'amqp://guest:guest@localhost',
+    exchange: 'hasone',
+    queue: {
+      name: 'myconsumequeue',
+      options: {}
+    }
+  },
+  routingKeyArray: {
+    url: process.env.AMQP_URL || 'amqp://guest:guest@localhost',
+    exchange: 'mytestexchange',
+    queue: {
+      name: 'myconsumequeue',
+      routingKey: ['myRoutingKey', 'myRoutingKey2'],
+      options: {deadLetterExchange: 'wow'}
+    }
   }
 };
 
