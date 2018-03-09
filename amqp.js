@@ -11,7 +11,9 @@ module.exports = function (config) {
     throw new Error('amqp-wrapper: Invalid config');
   }
 
-  var connection, channel;
+  let connection;
+  let channel;
+  let consumerTag;
 
   var prefetch = config.prefetch || 10;
 
@@ -57,6 +59,11 @@ module.exports = function (config) {
     return d.nodeify(cb);
   }
 
+  function requeueAll () {
+    channel.cancel(consumerTag);
+    channel.nackAll(true);
+  }
+
   function close (cb) {
     if (connection) {
       return connection.close(cb);
@@ -97,9 +104,10 @@ module.exports = function (config) {
    *
    * cf http://squaremo.github.io/amqp.node/doc/channel_api.html#toc_34
    */
-  function consume (handleMessage, options) {
+  function consume (handleMessage, options, cb) {
+    const d = Deferred();
     debug('consume()');
-    function callback (message) {
+    function onMessage (message) {
       function done (err, requeue) {
         if (requeue === undefined) {
           requeue = false;
@@ -115,21 +123,30 @@ module.exports = function (config) {
         var parsedPayload = JSON.parse(messagePayload);
         handleMessage(parsedPayload, done);
       } catch (error) {
-        console.log(error);
+        console.error(error);
         // Do not requeue on exception - it means something unexpected
         // (and prob. non-transitory) happened.
         done(error, false);
       }
     }
 
-    channel.consume(config.queue.name, callback, options);
+    channel.consume(config.queue.name, onMessage, options, consumeCb);
+
+    function consumeCb (err, ok) {
+      if (err) return d.reject(err);
+
+      consumerTag = ok.consumerTag;
+      return d.resolve();
+    }
+    return d.nodeify(cb);
   }
 
   return {
     connect,
     close,
     publish,
-    consume
+    consume,
+    requeueAll
   };
 };
 

@@ -209,6 +209,26 @@ describe('AMQP', function () {
         });
       });
   });
+
+  describe('#requeueAll', function () {
+    it('returns messages to the queue', function (done) {
+      var amqp = AMQP(config.good);
+      amqp.connect(function (err) {
+        if (err) {
+          return done(err);
+        }
+        amqp.publish('myqueue', 'test', { hi: 'there' }, done);
+        amqp.consume((msg) => {
+          expect(msg.hi).to.equal('there');
+        }).then(() => {
+          amqp.requeueAll();
+          amqp.consume((msg) => {
+            expect(msg.hi).to.equal('there');
+          });
+        });
+      });
+    });
+  });
 });
 
 // vim: set et sw=2 colorcolumn=80:
