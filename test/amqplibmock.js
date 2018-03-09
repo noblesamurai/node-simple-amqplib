@@ -5,14 +5,14 @@
  */
 var Sinon = require('sinon');
 
-module.exports = function(config) {
+module.exports = function (config) {
   var overrides = (config && config.overrides) || {};
   var messageToDeliver = (config && config.messageToDeliver) || '{}';
 
   var channelMock = {
     consume: Sinon.stub().yields({
       content: {
-        toString: function() {return messageToDeliver;}
+        toString: function () { return messageToDeliver; }
       }
     }),
     assertExchange: Sinon.stub().callsArg(3),
