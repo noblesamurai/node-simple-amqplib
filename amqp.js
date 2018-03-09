@@ -1,12 +1,12 @@
 'use strict';
 
-var amqp = require('amqplib/callback_api'),
-    stringifysafe = require('json-stringify-safe'),
-    queueSetup = require('./lib/queue-setup'),
-    debug = require('debug')('amqp-wrapper'),
-    Deferred = require('deferential');
+const amqp = require('amqplib/callback_api');
+const stringifysafe = require('json-stringify-safe');
+const queueSetup = require('./lib/queue-setup');
+const debug = require('debug')('amqp-wrapper');
+const Deferred = require('deferential');
 
-module.exports = function(config) {
+module.exports = function (config) {
   if (!config || !config.url || !config.exchange) {
     throw new Error('amqp-wrapper: Invalid config');
   }
@@ -19,11 +19,11 @@ module.exports = function(config) {
     /**
      * Connects and remembers the channel.
      */
-    connect: function(cb) {
+    connect: function (cb) {
       var d = Deferred();
       amqp.connect(config.url, createChannel);
 
-      function createChannel(err, conn) {
+      function createChannel (err, conn) {
         debug('createChannel()');
         if (err) {
           return d.reject(err);
@@ -33,7 +33,7 @@ module.exports = function(config) {
         conn.createConfirmChannel(assertExchange);
       }
 
-      function assertExchange(err, ch) {
+      function assertExchange (err, ch) {
         debug('assertExchange()', ch);
         if (err) {
           return d.reject(err);
@@ -44,7 +44,7 @@ module.exports = function(config) {
         channel.assertExchange(config.exchange, 'topic', {}, assertQueues);
       }
 
-      function assertQueues(err) {
+      function assertQueues (err) {
         debug('assertQueues()');
         if (err) {
           return d.reject(err);
@@ -58,7 +58,7 @@ module.exports = function(config) {
       return d.nodeify(cb);
     },
 
-    close: function(cb) {
+    close: function (cb) {
       if (connection) {
         return connection.close(cb);
       }
@@ -73,13 +73,13 @@ module.exports = function(config) {
      *                         publish.
      * @param {Function(err)} callback The callback to call when done.
      */
-    publish: function(routingKey, message, options, cb) {
+    publish: function (routingKey, message, options, cb) {
       debug('publish()');
       var d = Deferred();
       if (typeof message === 'object') {
         message = stringifysafe(message);
       }
-      channel.publish(config.exchange, routingKey, new Buffer(message),
+      channel.publish(config.exchange, routingKey, Buffer.from(message),
         options, d.resolver(cb));
 
       return d.nodeify(cb);
@@ -98,10 +98,10 @@ module.exports = function(config) {
      *
      * cf http://squaremo.github.io/amqp.node/doc/channel_api.html#toc_34
      */
-    consume: function(handleMessage, options) {
+    consume: function (handleMessage, options) {
       debug('consume()');
-      function callback(message) {
-        function done(err, requeue) {
+      function callback (message) {
+        function done (err, requeue) {
           if (requeue === undefined) {
             requeue = false;
           }
@@ -115,8 +115,7 @@ module.exports = function(config) {
           var messagePayload = message.content.toString();
           var parsedPayload = JSON.parse(messagePayload);
           handleMessage(parsedPayload, done);
-        }
-        catch (error) {
+        } catch (error) {
           console.log(error);
           // Do not requeue on exception - it means something unexpected
           // (and prob. non-transitory) happened.
