@@ -25,36 +25,22 @@ module.exports = function (config) {
     amqp.connect(config.url, createChannel);
 
     function createChannel (err, conn) {
-      debug('createChannel()');
-      if (err) {
-        return d.reject(err);
-      }
+      if (err) return d.reject(err);
       connection = conn;
-
       conn.createConfirmChannel(assertExchange);
     }
 
     function assertExchange (err, ch) {
-      debug('assertExchange()', ch);
-      if (err) {
-        return d.reject(err);
-      }
+      if (err) return d.reject(err);
       channel = ch;
-
       channel.prefetch(prefetch);
       channel.assertExchange(config.exchange, 'topic', {}, assertQueues);
     }
 
     function assertQueues (err) {
-      debug('assertQueues()');
-      if (err) {
-        return d.reject(err);
-      }
-      if (config.queue && config.queue.name) {
-        queueSetup.setupForConsume(channel, config, d.resolver(cb));
-      } else {
-        d.resolve();
-      }
+      if (err) return d.reject(err);
+      if (!config.queue || !config.queue.name) return d.resolve();
+      queueSetup.setupForConsume(channel, config, d.resolver(cb));
     }
     return d.nodeify(cb);
   }
@@ -65,10 +51,8 @@ module.exports = function (config) {
   }
 
   function close (cb) {
-    if (connection) {
-      return connection.close(cb);
-    }
-    cb();
+    if (!connection) return cb();
+    return connection.close(cb);
   }
 
   /**
@@ -109,12 +93,7 @@ module.exports = function (config) {
     debug('consume()');
     function onMessage (message) {
       function done (err, requeue) {
-        if (requeue === undefined) {
-          requeue = false;
-        }
-        if (err) {
-          return channel.nack(message, false, requeue);
-        }
+        if (err) return channel.nack(message, false, requeue || false);
         channel.ack(message);
       }
 
@@ -134,7 +113,6 @@ module.exports = function (config) {
 
     function consumeCb (err, ok) {
       if (err) return d.reject(err);
-
       consumerTag = ok.consumerTag;
       return d.resolve();
     }
