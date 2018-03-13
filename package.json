@@ -1,10 +1,10 @@
 {
   "name": "amqp-wrapper",
-  "version": "5.5.1",
+  "version": "5.6.0-requeue.0",
   "description": "A wrapper around https://github.com/squaremo/amqp.node to make consuming and publishing dead easy.",
   "main": "amqp.js",
   "scripts": {
-    "test": "NODE_ENV=test mocha test --recursive",
+    "test": "semistandard && NODE_ENV=test mocha test --recursive",
     "jshint": "jshint -c .jshintrc --exclude-path .gitignore .",
     "codestyle": "jscs -p google lib/ test/",
     "coverage": "nyc -a -c -r html -r text -r lcov npm test"
@@ -39,6 +39,12 @@
     "mocha": "^1.21.4",
     "nyc": "^11.4.1",
     "sandboxed-module": "^0.3.0",
+    "semistandard": "^12.0.1",
     "sinon": "^1.10.3"
+  },
+  "semistandard": {
+    "env": [
+      "mocha"
+    ]
   }
 }

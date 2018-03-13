@@ -1,12 +1,14 @@
 test:
   build: .
   links:
-    - rabbitmq 
+    - rabbitmq
   command: npm test
   environment:
     - AMQP_URL=amqp://guest:guest@rabbitmq//
+    - DEBUG=${DEBUG}
   volumes:
     - ./test:/code/test
+    - ./amqp.js:/code/amqp.js
 
 rabbitmq:
   image: rabbitmq
