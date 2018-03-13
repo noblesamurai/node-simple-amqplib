@@ -6,7 +6,8 @@
   "scripts": {
     "test": "NODE_ENV=test mocha test --recursive",
     "jshint": "jshint -c .jshintrc --exclude-path .gitignore .",
-    "codestyle": "jscs -p google lib/ test/"
+    "codestyle": "jscs -p google lib/ test/",
+    "coverage": "nyc -a -c -r html -r text -r lcov npm test"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
     "jshint": "^2.8.0",
     "lodash": "^2.4.1",
     "mocha": "^1.21.4",
+    "nyc": "^11.4.1",
     "sandboxed-module": "^0.3.0",
     "sinon": "^1.10.3"
   }
