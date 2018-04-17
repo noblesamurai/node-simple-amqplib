@@ -20,7 +20,7 @@ module.exports = function (config) {
    */
   function connect (cb) {
     var d = Deferred();
-    amqp.connect(config.url, createChannel);
+    amqp.connect(config.url, config.socketOptions, createChannel);
 
     function createChannel (err, conn) {
       debug('createChannel()');
