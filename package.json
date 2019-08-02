@@ -5,8 +5,6 @@
   "main": "amqp.js",
   "scripts": {
     "test": "semistandard && NODE_ENV=test mocha test --recursive",
-    "jshint": "jshint -c .jshintrc --exclude-path .gitignore .",
-    "codestyle": "jscs -p google lib/ test/",
     "coverage": "nyc -a -c -r html -r text -r lcov npm test"
   },
   "repository": {
@@ -33,8 +31,6 @@
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
-    "jscs": "^1.6.1",
-    "jshint": "^2.8.0",
     "lodash": "^2.4.1",
     "mocha": "^6.2.0",
     "nyc": "^11.4.1",
