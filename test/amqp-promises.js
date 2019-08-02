@@ -4,12 +4,14 @@ const AMQP = require('../amqp');
 const config = require('./config').good;
 
 describe('AMQP', function () {
-  describe('#connect', function () {
+  describe('#consume', function () {
     it('should return a promise', function (done) {
       var amqp = AMQP(config);
       amqp.connect().then(function () {
-        done();
-      }, done);
+        return amqp.consume().then(function () {
+          done();
+        }, done);
+      });
     });
   });
 });
