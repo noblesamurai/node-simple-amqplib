@@ -7,7 +7,7 @@ describe('AMQP', function () {
   describe('#connect', function () {
     it('should return a promise', function (done) {
       var amqp = AMQP(config);
-      return amqp.connect().then(function () {
+      amqp.connect().then(function () {
         done();
       }, done);
     });
