@@ -5,7 +5,7 @@ module.exports = {
     queue: {
       name: 'myconsumequeue',
       routingKey: 'myRoutingQueue',
-      options: {deadLetterExchange: 'wow'}
+      options: { deadLetterExchange: 'wow' }
     }
   },
   noRoutingKey: {
@@ -22,7 +22,7 @@ module.exports = {
     queue: {
       name: 'myconsumequeue',
       routingKey: ['myRoutingKey', 'myRoutingKey2'],
-      options: {deadLetterExchange: 'wow'}
+      options: { deadLetterExchange: 'wow' }
     }
   }
 };
