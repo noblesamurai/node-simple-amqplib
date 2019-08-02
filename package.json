@@ -4,7 +4,7 @@
   "description": "A wrapper around https://github.com/squaremo/amqp.node to make consuming and publishing dead easy.",
   "main": "amqp.js",
   "scripts": {
-    "test": "semistandard && NODE_ENV=test mocha test --recursive",
+    "test": "semistandard && NODE_ENV=test mocha test --recursive --exit",
     "coverage": "nyc -a -c -r html -r text -r lcov npm test"
   },
   "repository": {
