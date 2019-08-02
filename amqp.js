@@ -1,10 +1,6 @@
-'use strict';
-
-const amqp = require('amqplib/callback_api');
+const amqp = require('amqplib');
 const stringifysafe = require('json-stringify-safe');
 const queueSetup = require('./lib/queue-setup');
-const debug = require('debug')('amqp-wrapper');
-const Deferred = require('deferential');
 
 module.exports = function (config) {
   if (!config || !config.url || !config.exchange) {
@@ -12,56 +8,25 @@ module.exports = function (config) {
   }
 
   var connection, channel;
-
   var prefetch = config.prefetch || 10;
 
   /**
    * Connects and remembers the channel.
    */
-  function connect (cb) {
-    var d = Deferred();
-    amqp.connect(config.url, createChannel);
-
-    function createChannel (err, conn) {
-      debug('createChannel()');
-      if (err) {
-        return d.reject(err);
-      }
-      connection = conn;
-
-      conn.createConfirmChannel(assertExchange);
+  async function connect () {
+    const conn = await amqp.connect(config.url);
+    channel = await conn.createConfirmChannel();
+    channel.prefetch(prefetch);
+    await channel.assertExchange(config.exchange, 'topic', {});
+    if (config.queue && config.queue.name) {
+      return queueSetup.setupForConsume(channel, config);
     }
-
-    function assertExchange (err, ch) {
-      debug('assertExchange()', ch);
-      if (err) {
-        return d.reject(err);
-      }
-      channel = ch;
-
-      channel.prefetch(prefetch);
-      channel.assertExchange(config.exchange, 'topic', {}, assertQueues);
-    }
-
-    function assertQueues (err) {
-      debug('assertQueues()');
-      if (err) {
-        return d.reject(err);
-      }
-      if (config.queue && config.queue.name) {
-        queueSetup.setupForConsume(channel, config, d.resolver(cb));
-      } else {
-        d.resolve();
-      }
-    }
-    return d.nodeify(cb);
   }
 
-  function close (cb) {
+  async function close () {
     if (connection) {
-      return connection.close(cb);
+      return connection.close();
     }
-    cb();
   }
 
   /**
@@ -72,16 +37,11 @@ module.exports = function (config) {
    *                         publish.
    * @param {Function(err)} callback The callback to call when done.
    */
-  function publish (routingKey, message, options, cb) {
-    debug('publish()');
-    var d = Deferred();
+  async function publish (routingKey, message, options, cb) {
     if (typeof message === 'object') {
       message = stringifysafe(message);
     }
-    channel.publish(config.exchange, routingKey, Buffer.from(message),
-      options, d.resolver(cb));
-
-    return d.nodeify(cb);
+    return channel.publish(config.exchange, routingKey, Buffer.from(message), options);
   }
 
   /**
@@ -97,8 +57,7 @@ module.exports = function (config) {
    *
    * cf http://squaremo.github.io/amqp.node/doc/channel_api.html#toc_34
    */
-  function consume (handleMessage, options) {
-    debug('consume()');
+  async function consume (handleMessage, options) {
     function callback (message) {
       function done (err, requeue) {
         if (requeue === undefined) {
@@ -122,7 +81,7 @@ module.exports = function (config) {
       }
     }
 
-    channel.consume(config.queue.name, callback, options);
+    return channel.consume(config.queue.name, callback, options);
   }
 
   return {
