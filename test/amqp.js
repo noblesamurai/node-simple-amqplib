@@ -18,12 +18,12 @@ describe('AMQP', function () {
       done();
     });
     it('should throw with no url', function (done) {
-      expect(function () { AMQP({exchange: ''}); }).to
+      expect(function () { AMQP({ exchange: '' }); }).to
         .throwError('amqp-wrapper: Invalid config');
       done();
     });
     it('should throw with no exchange', function (done) {
-      expect(function () { AMQP({url: ''}); }).to
+      expect(function () { AMQP({ url: '' }); }).to
         .throwError('amqp-wrapper: Invalid config');
       done();
     });
@@ -122,7 +122,7 @@ describe('AMQP', function () {
         if (err) {
           return done(err);
         }
-        amqp.publish('myqueue', {woo: 'test'}, {}, done);
+        amqp.publish('myqueue', { woo: 'test' }, {}, done);
       });
     });
   });
@@ -133,7 +133,7 @@ describe('AMQP', function () {
           done();
         };
 
-        var amqpLibMock = require('./amqplibmock')({overrides: {ack: ack}});
+        var amqpLibMock = require('./amqplibmock')({ overrides: { ack: ack } });
 
         var mockedAMQP = SandboxedModule.require('../amqp', {
           requires: {
@@ -162,7 +162,7 @@ describe('AMQP', function () {
 
         var amqpLibMock = require('./amqplibmock')({
           messageToDeliver: 'nonvalidjson',
-          overrides: {nack: nack}
+          overrides: { nack: nack }
         });
 
         var mockedAMQP = SandboxedModule.require('../amqp', {
@@ -189,7 +189,7 @@ describe('AMQP', function () {
           done();
         };
 
-        var amqpLibMock = require('./amqplibmock')({overrides: {nack: nack}});
+        var amqpLibMock = require('./amqplibmock')({ overrides: { nack: nack } });
 
         var mockedAMQP = SandboxedModule.require('../amqp', {
           requires: {
