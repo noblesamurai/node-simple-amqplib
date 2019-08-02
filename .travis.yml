@@ -1,8 +1,8 @@
 language: node_js
 node_js:
-  - "4"
   - "6"
   - "8"
+  - "10"
 services:
   - rabbitmq
 before_script:
@@ -12,6 +12,4 @@ before_script:
 script: npm run coverage
 after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
-cache:
-  directories:
-    - node_modules
+cache: npm
