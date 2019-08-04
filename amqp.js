@@ -11,7 +11,10 @@ module.exports = function (config) {
   var prefetch = config.prefetch || 10;
 
   /**
-   * Connects and remembers the channel.
+   * @async
+   * @module connect
+   * Connects, establishes a channel, sets up exchange/queues/bindings/dead
+   * lettering.
    */
   async function connect () {
     const conn = await amqp.connect(config.url);
@@ -23,6 +26,11 @@ module.exports = function (config) {
     }
   }
 
+  /**
+   * @async
+   * @module close
+   * Closes connection.
+   */
   async function close () {
     if (connection) {
       return connection.close();
@@ -37,7 +45,16 @@ module.exports = function (config) {
    *                         publish.
    * @param {Function(err)} callback The callback to call when done.
    */
-  async function publish (routingKey, message, options, cb) {
+
+  /**
+    * @async
+    * @module publish
+    * Publish a message to the given routing key, with given options.
+    * @param {string} routingKey
+    * @param {object|string} message
+    * @param {object} options
+    */
+  async function publish (routingKey, message, options) {
     if (typeof message === 'object') {
       message = stringifysafe(message);
     }
@@ -45,6 +62,12 @@ module.exports = function (config) {
   }
 
   /**
+   * @async
+   * @module consume
+   * Start consuming on the queue specified in the config you passed on
+   * instantiation, using the given message handler callback.
+   * @param {function} handleMessage
+   * @param {object} options
    * handleMessage() is expected to be of the form:
    * handleMessage(parsedMessage, callback).
    * If callback is called with a non-null error, then the message will be
@@ -91,5 +114,3 @@ module.exports = function (config) {
     consume
   };
 };
-
-// vim: set et sw=2:
