@@ -88,48 +88,56 @@ use localhost if it's not there... unproven though.)
 > amqp-wrapper@6.0.0 docs /Users/tim/git/node-amqp-wrapper
 > jsdoc2md amqp.js
 
-## Modules
+<a name="AMQPWrapper"></a>
 
-<dl>
-<dt><a href="#connect
-Connects, establishes a channel, sets up exchange/queues/bindings/dead
-lettering.module_">connect
-Connects, establishes a channel, sets up exchange/queues/bindings/dead
-lettering.</a></dt>
-<dd></dd>
-<dt><a href="#close
-Closes connection.module_">close
-Closes connection.</a></dt>
-<dd></dd>
-<dt><a href="#publish
-Publish a message to the given routing key, with given options.module_">publish
-Publish a message to the given routing key, with given options.</a></dt>
-<dd></dd>
-<dt><a href="#consume
-Start consuming on the queue specified in the config you passed on
-instantiation, using the given message handler callback.module_">consume
-Start consuming on the queue specified in the config you passed on
-instantiation, using the given message handler callback.</a></dt>
-<dd></dd>
-</dl>
+## AMQPWrapper
+Class to contain an instantiated connection/channel to AMQP with a given
+config.
 
-<a name="connect
-Connects, establishes a channel, sets up exchange/queues/bindings/dead
-lettering.module_"></a>
+**Kind**: global class  
 
-## connect
+* [AMQPWrapper](#AMQPWrapper)
+    * [new AMQPWrapper(config)](#new_AMQPWrapper_new)
+    * [.connect()](#AMQPWrapper+connect) ⇒ <code>Promise</code>
+    * [.close()](#AMQPWrapper+close) ⇒ <code>Promise</code>
+    * [.publish(routingKey, message, options)](#AMQPWrapper+publish) ⇒ <code>Promise</code>
+    * [.consume(handleMessage, options)](#AMQPWrapper+consume) ⇒ <code>Promise</code>
+
+<a name="new_AMQPWrapper_new"></a>
+
+### new AMQPWrapper(config)
+Instantiate an AMQP wrapper with a given config.
+
+
+| Param | Type |
+| --- | --- |
+| config | <code>object</code> | 
+| config.url | <code>string</code> | 
+| config.exchange | <code>string</code> | 
+| config.queue | <code>object</code> | 
+| config.queue.name | <code>string</code> | 
+| config.queue.routingKey | <code>Array.&lt;string&gt;</code> \| <code>string</code> | 
+| config.queue.options | <code>object</code> | 
+
+<a name="AMQPWrapper+connect"></a>
+
+### amqpWrapper.connect() ⇒ <code>Promise</code>
 Connects, establishes a channel, sets up exchange/queues/bindings/dead
 lettering.
-<a name="close
-Closes connection.module_"></a>
 
-## close
+**Kind**: instance method of [<code>AMQPWrapper</code>](#AMQPWrapper)  
+<a name="AMQPWrapper+close"></a>
+
+### amqpWrapper.close() ⇒ <code>Promise</code>
 Closes connection.
-<a name="publish
-Publish a message to the given routing key, with given options.module_"></a>
 
-## publish
+**Kind**: instance method of [<code>AMQPWrapper</code>](#AMQPWrapper)  
+<a name="AMQPWrapper+publish"></a>
+
+### amqpWrapper.publish(routingKey, message, options) ⇒ <code>Promise</code>
 Publish a message to the given routing key, with given options.
+
+**Kind**: instance method of [<code>AMQPWrapper</code>](#AMQPWrapper)  
 
 | Param | Type |
 | --- | --- |
@@ -137,19 +145,27 @@ Publish a message to the given routing key, with given options.
 | message | <code>object</code> \| <code>string</code> | 
 | options | <code>object</code> | 
 
-<a name="consume
-Start consuming on the queue specified in the config you passed on
-instantiation, using the given message handler callback.module_"></a>
+<a name="AMQPWrapper+consume"></a>
 
-## consume
-Start consuming on the queue specified in the config you passed on
-instantiation, using the given message handler callback.
+### amqpWrapper.consume(handleMessage, options) ⇒ <code>Promise</code>
+handleMessage() is expected to be of the form:
+handleMessage(parsedMessage, callback).
+If callback is called with a non-null error, then the message will be
+nacked. You can call it like:
+callback(err, requeue) in order
+to instruct rabbit whether to requeue the message
+(or discard/dead letter).
 
-| Param | Type | Description |
-| --- | --- | --- |
-| handleMessage | <code>function</code> |  |
-| options | <code>object</code> | handleMessage() is expected to be of the form: handleMessage(parsedMessage, callback). If callback is called with a non-null error, then the message will be nacked. You can call it like: callback(err, requeue) in order to instruct rabbit whether to requeue the message (or discard/dead letter). If not given, requeue is assumed to be false. cf http://squaremo.github.io/amqp.node/doc/channel_api.html#toc_34 |
+If not given, requeue is assumed to be false.
 
+cf http://squaremo.github.io/amqp.node/doc/channel_api.html#toc_34
+
+**Kind**: instance method of [<code>AMQPWrapper</code>](#AMQPWrapper)  
+
+| Param | Type |
+| --- | --- |
+| handleMessage | <code>function</code> | 
+| options | <code>object</code> | 
 
 # License
 
