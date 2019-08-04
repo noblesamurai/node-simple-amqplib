@@ -8,21 +8,21 @@ const config = require('./config');
 describe('AMQP', function () {
   describe('#constructor', function () {
     it('should throw with empty constructor', function () {
-      expect(function () { AMQP(); }).to.throw('amqp-wrapper: Invalid config');
+      expect(() => new AMQP()).to.throw('amqp-wrapper: Invalid config');
     });
     it('should throw with no url or exchange', function () {
-      expect(function () { AMQP({}); }).to.throw('amqp-wrapper: Invalid config');
+      expect(() => new AMQP({})).to.throw('amqp-wrapper: Invalid config');
     });
     it('should throw with no url', function () {
-      expect(function () { AMQP({ exchange: '' }); }).to.throw('amqp-wrapper: Invalid config');
+      expect(() => new AMQP({ exchange: '' })).to.throw('amqp-wrapper: Invalid config');
     });
     it('should throw with no exchange', function () {
-      expect(function () { AMQP({ url: '' }); }).to.throw('amqp-wrapper: Invalid config');
+      expect(() => new AMQP({ url: '' })).to.throw('amqp-wrapper: Invalid config');
     });
   });
   describe('#connect', function () {
     it('should should fail to connect to bad endpoint', function (done) {
-      var amqp = AMQP({
+      var amqp = new AMQP({
         url: 'amqp://guest:guest@localhost:6767',
         exchange: 'FOO'
       });
@@ -32,16 +32,17 @@ describe('AMQP', function () {
       });
     });
     it('should call the callback successfully', function (done) {
-      var amqp = AMQP(config.good);
+      var amqp = new AMQP(config.good);
       amqp.connect().then(() => done());
     });
     it('should declare your queue, and bind it', async function () {
       var amqpLibMock = require('./amqplibmock')();
-      var mockedAMQP = SandboxedModule.require('../amqp', {
+      var MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib': amqpLibMock.mock
         }
-      })(config.good);
+      });
+      const mockedAMQP = new MockedAMQP(config.good);
 
       await mockedAMQP.connect();
       // one queue, dead lettered
@@ -51,11 +52,12 @@ describe('AMQP', function () {
     });
     it('allows you to specify an array for routingKey and binds each given', function (done) {
       var amqpLibMock = require('./amqplibmock')();
-      var mockedAMQP = SandboxedModule.require('../amqp', {
+      var MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib': amqpLibMock.mock
         }
-      })(config.routingKeyArray);
+      });
+      const mockedAMQP = new MockedAMQP(config.routingKeyArray);
 
       mockedAMQP.connect().then(function () {
         // one queue, dead lettered
@@ -68,11 +70,12 @@ describe('AMQP', function () {
     });
     it('should just declare if you don\'t specify routing key', function (done) {
       var amqpLibMock = require('./amqplibmock')();
-      var mockedAMQP = SandboxedModule.require('../amqp', {
+      var MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib': amqpLibMock.mock
         }
-      })(config.noRoutingKey);
+      });
+      const mockedAMQP = new MockedAMQP(config.noRoutingKey);
 
       mockedAMQP.connect().then(function () {
         // one queue, not dead lettered
@@ -85,12 +88,12 @@ describe('AMQP', function () {
   });
   describe('#publish', function () {
     it('should resolve successfully', async function () {
-      var amqp = AMQP(config.good);
+      var amqp = new AMQP(config.good);
       await amqp.connect();
       await expect(amqp.publish('myqueue', 'test', {})).to.eventually.be.fulfilled();
     });
     it('should accept objects', async function () {
-      var amqp = AMQP(config.good);
+      var amqp = new AMQP(config.good);
       await amqp.connect();
       await expect(amqp.publish('myqueue', { woo: 'test' }, {})).to.eventually.be.fulfilled();
     });
@@ -102,11 +105,12 @@ describe('AMQP', function () {
       };
 
       var amqpLibMock = require('./amqplibmock')({ overrides: { ack: ack } });
-      var mockedAMQP = SandboxedModule.require('../amqp', {
+      var MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib': amqpLibMock.mock
         }
-      })(config.good);
+      });
+      const mockedAMQP = new MockedAMQP(config.good);
 
       function myMessageHandler (parsedMsg, cb) {
         cb();
@@ -128,11 +132,12 @@ describe('AMQP', function () {
         overrides: { nack: nack }
       });
 
-      var mockedAMQP = SandboxedModule.require('../amqp', {
+      var MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           'amqplib': amqpLibMock.mock
         }
-      })(config.good);
+      });
+      const mockedAMQP = new MockedAMQP(config.good);
 
       function myMessageHandler (parsedMsg, cb) {
         cb();
@@ -151,11 +156,12 @@ describe('AMQP', function () {
 
         var amqpLibMock = require('./amqplibmock')({ overrides: { nack: nack } });
 
-        var mockedAMQP = SandboxedModule.require('../amqp', {
+        var MockedAMQP = SandboxedModule.require('../amqp', {
           requires: {
             'amqplib': amqpLibMock.mock
           }
-        })(config.good);
+        });
+        const mockedAMQP = new MockedAMQP(config.good);
 
         function myMessageHandler (parsedMsg, cb) {
           cb(new Error('got it bad'), 'requeue');

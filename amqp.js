@@ -2,38 +2,57 @@ const amqp = require('amqplib');
 const stringifysafe = require('json-stringify-safe');
 const queueSetup = require('./lib/queue-setup');
 
-module.exports = function (config) {
-  if (!config || !config.url || !config.exchange) {
-    throw new Error('amqp-wrapper: Invalid config');
+/**
+ * Class to contain an instantiated connection/channel to AMQP with a given
+ * config.
+ */
+class AMQPWrapper {
+  /**
+   * Instantiate an AMQP wrapper with a given config.
+   * @param {object} config
+   * @param {string} config.url
+   * @param {string} config.exchange
+   * @param {object} config.queue
+   * @param {string} config.queue.name
+   * @param {Array<string>|string} config.queue.routingKey
+   * @param {object} config.queue.options
+   */
+  constructor (config) {
+    if (!config || !config.url || !config.exchange) {
+      throw new Error('amqp-wrapper: Invalid config');
+    }
+    this.config = config;
+    this.connection = null;
+    this.channel = null;
+    this.prefetch = config.prefetch || 10;
   }
-
-  var connection, channel;
-  var prefetch = config.prefetch || 10;
 
   /**
    * @async
-   * @module connect
-   * Connects, establishes a channel, sets up exchange/queues/bindings/dead
+   * @description Connects, establishes a channel, sets up exchange/queues/bindings/dead
    * lettering.
+   * @returns {Promise}
    */
-  async function connect () {
+  async connect () {
+    const { config } = this;
     const conn = await amqp.connect(config.url);
-    channel = await conn.createConfirmChannel();
-    channel.prefetch(prefetch);
-    await channel.assertExchange(config.exchange, 'topic', {});
+    this.channel = await conn.createConfirmChannel();
+    this.channel.prefetch(this.prefetch);
+    await this.channel.assertExchange(config.exchange, 'topic', {});
     if (config.queue && config.queue.name) {
-      return queueSetup.setupForConsume(channel, config);
+      return queueSetup.setupForConsume(this.channel, config);
     }
   }
 
   /**
    * @async
-   * @module close
+    * @description
    * Closes connection.
+   * @returns {Promise}
    */
-  async function close () {
-    if (connection) {
-      return connection.close();
+  async close () {
+    if (this.connection) {
+      return this.connection.close();
     }
   }
 
@@ -48,26 +67,27 @@ module.exports = function (config) {
 
   /**
     * @async
-    * @module publish
+    * @description
     * Publish a message to the given routing key, with given options.
     * @param {string} routingKey
     * @param {object|string} message
     * @param {object} options
+    * @returns {Promise}
     */
-  async function publish (routingKey, message, options) {
+  async publish (routingKey, message, options) {
     if (typeof message === 'object') {
       message = stringifysafe(message);
     }
-    return channel.publish(config.exchange, routingKey, Buffer.from(message), options);
+    return this.channel.publish(this.config.exchange, routingKey, Buffer.from(message), options);
   }
 
   /**
    * @async
-   * @module consume
    * Start consuming on the queue specified in the config you passed on
    * instantiation, using the given message handler callback.
    * @param {function} handleMessage
    * @param {object} options
+   * @description
    * handleMessage() is expected to be of the form:
    * handleMessage(parsedMessage, callback).
    * If callback is called with a non-null error, then the message will be
@@ -79,8 +99,10 @@ module.exports = function (config) {
    * If not given, requeue is assumed to be false.
    *
    * cf http://squaremo.github.io/amqp.node/doc/channel_api.html#toc_34
+   * @returns {Promise}
    */
-  async function consume (handleMessage, options) {
+  async consume (handleMessage, options) {
+    const { channel } = this;
     function callback (message) {
       function done (err, requeue) {
         if (requeue === undefined) {
@@ -104,13 +126,8 @@ module.exports = function (config) {
       }
     }
 
-    return channel.consume(config.queue.name, callback, options);
+    return channel.consume(this.config.queue.name, callback, options);
   }
+}
 
-  return {
-    connect,
-    close,
-    publish,
-    consume
-  };
-};
+module.exports = AMQPWrapper;
