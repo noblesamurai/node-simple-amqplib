@@ -48,6 +48,7 @@ describe('AMQP', function () {
       // one queue, dead lettered
       expect(amqpLibMock.assertQueueSpy.callCount).to.equal(2);
       // Bind the consume queue, and its dead letter queue.
+      expect(amqpLibMock.bindQueueSpy).to.have.been.calledWith(config.good.queue.name, config.good.exchange, config.good.queue.routingKey);
       expect(amqpLibMock.bindQueueSpy.callCount).to.equal(2);
     });
     it('allows you to specify an array for routingKey and binds each given', function (done) {
