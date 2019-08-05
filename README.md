@@ -25,7 +25,7 @@ consume and publish operations.
 
 # Example usage
 ```javascript
-var AMQP = require('amqp-wrapper');
+const AMQP = require('amqp-wrapper');
 
 var config = {
   url: process.env.AMQP_URL,
@@ -41,7 +41,7 @@ var config = {
   prefetch: 100
 };
 
-var amqp = AMQP(config);
+const amqp = new AMQP(config);
 
 async function main () {
   // Must call this before you consume/publish/etc...
@@ -84,9 +84,6 @@ Mac) so you may need to hack that stuff (or it may just work as it should just
 use localhost if it's not there... unproven though.)
 
 # API
-
-> amqp-wrapper@6.0.0 docs /Users/tim/git/node-amqp-wrapper
-> jsdoc2md amqp.js
 
 <a name="AMQPWrapper"></a>
 
