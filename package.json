@@ -1,6 +1,6 @@
 {
   "name": "amqp-wrapper",
-  "version": "7.0.0-es6.0",
+  "version": "7.0.0-es6.1",
   "engines": {
     "node": ">= 8"
   },
