@@ -173,6 +173,20 @@ describe('AMQP', function () {
         }).catch(done);
       });
   });
+  describe('#close', function () {
+    it('should close the connection', async function () {
+      var amqpLibMock = require('./amqplibmock')();
+      var MockedAMQP = SandboxedModule.require('../amqp', {
+        requires: {
+          'amqplib': amqpLibMock.mock
+        }
+      });
+      const amqp = new MockedAMQP(config.good);
+      await amqp.connect();
+      await amqp.close();
+      expect(amqpLibMock.closeConnectionSpy).to.have.been.called();
+    });
+  });
 });
 
 // vim: set et sw=2 colorcolumn=80:

@@ -35,8 +35,8 @@ class AMQPWrapper {
    */
   async connect () {
     const { config } = this;
-    const conn = await amqp.connect(config.url);
-    this.channel = await conn.createConfirmChannel();
+    this.connection = await amqp.connect(config.url);
+    this.channel = await this.connection.createConfirmChannel();
     this.channel.prefetch(this.prefetch);
     await this.channel.assertExchange(config.exchange, 'topic', {});
     if (config.queue && config.queue.name) {

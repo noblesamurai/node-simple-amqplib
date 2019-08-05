@@ -21,10 +21,13 @@ module.exports = function (config) {
     nack: overrides.nack || Sinon.spy()
   };
 
+  var connectionMock = {
+    createConfirmChannel: Sinon.stub().resolves(channelMock),
+    close: Sinon.stub().resolves()
+  };
+
   var amqpLibMock = {
-    connect: Sinon.stub().resolves({
-      createConfirmChannel: Sinon.stub().resolves(channelMock)
-    })
+    connect: Sinon.stub().resolves(connectionMock)
   };
 
   return {
@@ -33,6 +36,7 @@ module.exports = function (config) {
     bindQueueSpy: channelMock.bindQueue,
     ackSpy: channelMock.ack,
     nackSpy: channelMock.nack,
-    channelMock: channelMock
+    channelMock: channelMock,
+    closeConnectionSpy: connectionMock.close
   };
 };
