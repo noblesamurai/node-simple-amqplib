@@ -79,6 +79,7 @@ class AMQPWrapper {
     if (typeof message === 'object') {
       message = stringifysafe(message);
     }
+    // NB: amqplib's ConfirmChannel.publish does not actually return a promise. See https://www.squaremobius.net/amqp.node/channel_api.html#flowcontrol
     return promisify(this.channel.publish.bind(this.channel, this.config.exchange, routingKey, Buffer.from(message), options))();
   }
 
