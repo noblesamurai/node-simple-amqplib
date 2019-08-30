@@ -39,7 +39,7 @@ describe('AMQP', function () {
       var amqpLibMock = require('./amqplibmock')();
       var MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
-          'amqplib': amqpLibMock.mock
+          amqplib: amqpLibMock.mock
         }
       });
       const mockedAMQP = new MockedAMQP(config.good);
@@ -55,7 +55,7 @@ describe('AMQP', function () {
       var amqpLibMock = require('./amqplibmock')();
       var MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
-          'amqplib': amqpLibMock.mock
+          amqplib: amqpLibMock.mock
         }
       });
       const mockedAMQP = new MockedAMQP(config.routingKeyArray);
@@ -73,7 +73,7 @@ describe('AMQP', function () {
       var amqpLibMock = require('./amqplibmock')();
       var MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
-          'amqplib': amqpLibMock.mock
+          amqplib: amqpLibMock.mock
         }
       });
       const mockedAMQP = new MockedAMQP(config.noRoutingKey);
@@ -108,7 +108,7 @@ describe('AMQP', function () {
       var amqpLibMock = require('./amqplibmock')({ overrides: { ack: ack } });
       var MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
-          'amqplib': amqpLibMock.mock
+          amqplib: amqpLibMock.mock
         }
       });
       const mockedAMQP = new MockedAMQP(config.good);
@@ -135,7 +135,7 @@ describe('AMQP', function () {
 
       var MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
-          'amqplib': amqpLibMock.mock
+          amqplib: amqpLibMock.mock
         }
       });
       const mockedAMQP = new MockedAMQP(config.good);
@@ -159,7 +159,7 @@ describe('AMQP', function () {
 
         var MockedAMQP = SandboxedModule.require('../amqp', {
           requires: {
-            'amqplib': amqpLibMock.mock
+            amqplib: amqpLibMock.mock
           }
         });
         const mockedAMQP = new MockedAMQP(config.good);
@@ -178,7 +178,7 @@ describe('AMQP', function () {
       var amqpLibMock = require('./amqplibmock')();
       var MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
-          'amqplib': amqpLibMock.mock
+          amqplib: amqpLibMock.mock
         }
       });
       const amqp = new MockedAMQP(config.good);
