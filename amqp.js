@@ -1,6 +1,7 @@
 const amqp = require('amqplib');
 const stringifysafe = require('json-stringify-safe');
 const queueSetup = require('./lib/queue-setup');
+const { promisify } = require('util');
 
 /**
  * Class to contain an instantiated connection/channel to AMQP with a given
@@ -74,11 +75,11 @@ class AMQPWrapper {
     * @param {object} options
     * @returns {Promise}
     */
-  async publish (routingKey, message, options) {
+  async publish (routingKey, message, options = {}) {
     if (typeof message === 'object') {
       message = stringifysafe(message);
     }
-    return this.channel.publish(this.config.exchange, routingKey, Buffer.from(message), options);
+    return promisify(this.channel.publish.bind(this.channel, this.config.exchange, routingKey, Buffer.from(message), options));
   }
 
   /**
