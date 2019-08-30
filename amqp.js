@@ -79,7 +79,7 @@ class AMQPWrapper {
     if (typeof message === 'object') {
       message = stringifysafe(message);
     }
-    return promisify(this.channel.publish.bind(this.channel, this.config.exchange, routingKey, Buffer.from(message), options));
+    return promisify(cb => this.channel.publish(this.config.exchange, routingKey, Buffer.from(message), options, cb));
   }
 
   /**
