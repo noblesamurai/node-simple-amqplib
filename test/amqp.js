@@ -31,9 +31,9 @@ describe('AMQP', function () {
         done();
       });
     });
-    it('should call the callback successfully', function (done) {
+    it('should return a promise', async function () {
       var amqp = new AMQP(config.good);
-      amqp.connect().then(() => done());
+      expect(amqp.connect()).to.be.fulfilled();
     });
     it('should declare your queue, and bind it', async function () {
       var amqpLibMock = require('./amqplibmock')();
