@@ -79,7 +79,8 @@ class AMQPWrapper {
     if (typeof message === 'object') {
       message = stringifysafe(message);
     }
-    // NB: amqplib's ConfirmChannel.publish does not actually return a promise. See https://www.squaremobius.net/amqp.node/channel_api.html#flowcontrol
+    // NB: amqplib's ConfirmChannel.publish does not actually return a promise.
+    // See https://www.squaremobius.net/amqp.node/channel_api.html#flowcontrol
     return promisify(this.channel.publish.bind(this.channel, this.config.exchange, routingKey, Buffer.from(message), options))();
   }
 
@@ -117,8 +118,8 @@ class AMQPWrapper {
       }
 
       try {
-        var messagePayload = message.content.toString();
-        var parsedPayload = JSON.parse(messagePayload);
+        const messagePayload = message.content.toString();
+        const parsedPayload = JSON.parse(messagePayload);
         handleMessage(parsedPayload, done);
       } catch (error) {
         console.log(error);
