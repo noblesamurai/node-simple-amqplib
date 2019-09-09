@@ -4,7 +4,7 @@
   "engines": {
     "node": ">= 8"
   },
-  "description": "A wrapper around https://github.com/squaremo/amqp.node to make consuming and publishing dead easy.",
+  "description": "Dead simple consume & publish for RabbitMQ.",
   "main": "amqp.js",
   "scripts": {
     "coverage": "nyc -a -c -r html -r text -r lcov npm test",
