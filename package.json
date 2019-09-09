@@ -1,5 +1,5 @@
 {
-  "name": "amqp-wrapper",
+  "name": "simple-amqplib",
   "version": "7.0.1",
   "engines": {
     "node": ">= 8"
