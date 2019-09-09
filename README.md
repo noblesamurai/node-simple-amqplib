@@ -3,8 +3,7 @@ amqp-wrapper
 
 > Simple consuming and publishing from/to a RabbitMQ broker.
 
-Allows you to have any number of publish queues, one consume queue and to perform
-consume and publish operations.
+Declarative API to consume from a rabbitMQ queue and to perform publish operations.
 
 - Auto queue declaration & binding
 - Dead lettering support
