@@ -16,9 +16,12 @@
     "url": "https://github.com/noblesamurai/node-amqp-wrapper"
   },
   "keywords": [
-    "amqp",
-    "wrapper",
-    "rabbitmq"
+    "AMQP",
+    "AMQP 0-9-1",
+    "RabbitMQ",
+    "amqplib",
+    "consume",
+    "publish"
   ],
   "author": "Timothy Leslie Allen <allen.timothy.email@gmail.com> (https://github.com/timlesallen)",
   "license": "BSD",
