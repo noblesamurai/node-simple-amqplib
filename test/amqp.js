@@ -8,16 +8,16 @@ const config = require('./config');
 describe('AMQP', function () {
   describe('#constructor', function () {
     it('should throw with empty constructor', function () {
-      expect(() => new AMQP()).to.throw('amqp-wrapper: Invalid config');
+      expect(() => new AMQP()).to.throw('simple-amqplib: Invalid config');
     });
     it('should throw with no url or exchange', function () {
-      expect(() => new AMQP({})).to.throw('amqp-wrapper: Invalid config');
+      expect(() => new AMQP({})).to.throw('simple-amqplib: Invalid config');
     });
     it('should throw with no url', function () {
-      expect(() => new AMQP({ exchange: '' })).to.throw('amqp-wrapper: Invalid config');
+      expect(() => new AMQP({ exchange: '' })).to.throw('simple-amqplib: Invalid config');
     });
     it('should throw with no exchange', function () {
-      expect(() => new AMQP({ url: '' })).to.throw('amqp-wrapper: Invalid config');
+      expect(() => new AMQP({ url: '' })).to.throw('simple-amqplib: Invalid config');
     });
   });
   describe('#connect', function () {

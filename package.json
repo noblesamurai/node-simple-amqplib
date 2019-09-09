@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/noblesamurai/node-amqp-wrapper"
+    "url": "https://github.com/noblesamurai/node-simple-amqplib"
   },
   "keywords": [
     "AMQP",
@@ -26,7 +26,7 @@
   "author": "Timothy Leslie Allen <allen.timothy.email@gmail.com> (https://github.com/timlesallen)",
   "license": "BSD",
   "bugs": {
-    "url": "https://github.com/noblesamurai/node-amqp-wrapper/issues"
+    "url": "https://github.com/noblesamurai/node-simple-amqplib/issues"
   },
   "dependencies": {
     "amqplib": "^0.5.5",

@@ -20,7 +20,7 @@ class AMQPWrapper {
    */
   constructor (config) {
     if (!config || !config.url || !config.exchange) {
-      throw new Error('amqp-wrapper: Invalid config');
+      throw new Error('simple-amqplib: Invalid config');
     }
     this.config = config;
     this.connection = null;
