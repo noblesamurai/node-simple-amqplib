@@ -1,11 +1,15 @@
 {
   "name": "amqp-wrapper",
-  "version": "6.0.0",
+  "version": "7.0.0-es6.5",
+  "engines": {
+    "node": ">= 8"
+  },
   "description": "A wrapper around https://github.com/squaremo/amqp.node to make consuming and publishing dead easy.",
   "main": "amqp.js",
   "scripts": {
-    "test": "semistandard && NODE_ENV=test mocha test --recursive --exit",
-    "coverage": "nyc -a -c -r html -r text -r lcov npm test"
+    "coverage": "nyc -a -c -r html -r text -r lcov npm test",
+    "docs": "jsdoc2md amqp.js",
+    "test": "semistandard && NODE_ENV=test mocha test --recursive --exit"
   },
   "repository": {
     "type": "git",
@@ -23,19 +27,20 @@
   },
   "dependencies": {
     "amqplib": "^0.5.5",
-    "async": "^3.1.0",
     "debug": "^2.6.8",
-    "deferential": "^1.0.0",
-    "json-stringify-safe": "^5.0.0",
-    "q": "^1.5.1"
+    "json-stringify-safe": "^5.0.0"
   },
   "devDependencies": {
-    "expect.js": "^0.3.1",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "dirty-chai": "^2.0.1",
+    "jsdoc-to-markdown": "^5.0.0",
     "mocha": "^6.2.0",
     "nyc": "^11.4.1",
     "sandboxed-module": "^0.3.0",
-    "semistandard": "^12.0.1",
-    "sinon": "^1.10.3"
+    "semistandard": "^14.1.0",
+    "sinon": "^7.3.2",
+    "sinon-chai": "^3.3.0"
   },
   "semistandard": {
     "env": [
