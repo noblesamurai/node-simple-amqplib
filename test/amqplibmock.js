@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * This is a mock for the underlying amqplib library that we are wrapping.
  */
@@ -10,23 +8,26 @@ module.exports = function (config) {
   var messageToDeliver = (config && config.messageToDeliver) || '{}';
 
   var channelMock = {
-    consume: Sinon.stub().yields({
+    consume: Sinon.stub().callsArgWith(1, {
       content: {
         toString: function () { return messageToDeliver; }
       }
     }),
-    assertExchange: Sinon.stub().callsArg(3),
-    assertQueue: Sinon.stub().callsArg(2),
-    bindQueue: Sinon.stub().callsArg(4),
+    assertExchange: Sinon.stub().resolves(),
+    assertQueue: Sinon.stub().resolves(),
+    bindQueue: Sinon.stub().resolves(),
     prefetch: Sinon.spy(),
     ack: overrides.ack || Sinon.spy(),
     nack: overrides.nack || Sinon.spy()
   };
 
+  var connectionMock = {
+    createConfirmChannel: Sinon.stub().resolves(channelMock),
+    close: Sinon.stub().resolves()
+  };
+
   var amqpLibMock = {
-    connect: Sinon.stub().yields(null, {
-      createConfirmChannel: Sinon.stub().yields(null, channelMock)
-    })
+    connect: Sinon.stub().resolves(connectionMock)
   };
 
   return {
@@ -35,6 +36,7 @@ module.exports = function (config) {
     bindQueueSpy: channelMock.bindQueue,
     ackSpy: channelMock.ack,
     nackSpy: channelMock.nack,
-    channelMock: channelMock
+    channelMock: channelMock,
+    closeConnectionSpy: connectionMock.close
   };
 };
