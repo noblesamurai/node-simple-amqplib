@@ -1,67 +1,60 @@
-'use strict';
-
-const amqp = require('amqplib/callback_api');
+const amqp = require('amqplib');
 const stringifysafe = require('json-stringify-safe');
 const queueSetup = require('./lib/queue-setup');
-const debug = require('debug')('amqp-wrapper');
-const Deferred = require('deferential');
+const { promisify } = require('util');
 
-module.exports = function (config) {
-  if (!config || !config.url || !config.exchange) {
-    throw new Error('amqp-wrapper: Invalid config');
+/**
+ * Class to contain an instantiated connection/channel to AMQP with a given
+ * config.
+ */
+class AMQPWrapper {
+  /**
+   * Instantiate an AMQP wrapper with a given config.
+   * @param {object} config
+   * @param {string} config.url
+   * @param {string} config.exchange
+   * @param {object} config.queue
+   * @param {string} config.queue.name
+   * @param {Array<string>|string} config.queue.routingKey
+   * @param {object} config.queue.options
+   */
+  constructor (config) {
+    if (!config || !config.url || !config.exchange) {
+      throw new Error('amqp-wrapper: Invalid config');
+    }
+    this.config = config;
+    this.connection = null;
+    this.channel = null;
+    this.prefetch = config.prefetch || 10;
   }
-
-  var connection, channel;
-
-  var prefetch = config.prefetch || 10;
 
   /**
-   * Connects and remembers the channel.
+   * @async
+   * @description Connects, establishes a channel, sets up exchange/queues/bindings/dead
+   * lettering.
+   * @returns {Promise}
    */
-  function connect (cb) {
-    var d = Deferred();
-    amqp.connect(config.url, createChannel);
-
-    function createChannel (err, conn) {
-      debug('createChannel()');
-      if (err) {
-        return d.reject(err);
-      }
-      connection = conn;
-
-      conn.createConfirmChannel(assertExchange);
+  async connect () {
+    const { config } = this;
+    this.connection = await amqp.connect(config.url);
+    this.channel = await this.connection.createConfirmChannel();
+    this.channel.prefetch(this.prefetch);
+    await this.channel.assertExchange(config.exchange, 'topic', {});
+    if (config.queue && config.queue.name) {
+      return queueSetup.setupForConsume(this.channel, config);
     }
-
-    function assertExchange (err, ch) {
-      debug('assertExchange()', ch);
-      if (err) {
-        return d.reject(err);
-      }
-      channel = ch;
-
-      channel.prefetch(prefetch);
-      channel.assertExchange(config.exchange, 'topic', {}, assertQueues);
-    }
-
-    function assertQueues (err) {
-      debug('assertQueues()');
-      if (err) {
-        return d.reject(err);
-      }
-      if (config.queue && config.queue.name) {
-        queueSetup.setupForConsume(channel, config, d.resolver(cb));
-      } else {
-        d.resolve();
-      }
-    }
-    return d.nodeify(cb);
   }
 
-  function close (cb) {
-    if (connection) {
-      return connection.close(cb);
+  /**
+   * @async
+    * @description
+   * Closes connection.
+   * @returns {Promise}
+   */
+  async close () {
+    if (this.connection) {
+      return this.connection.close();
     }
-    cb();
   }
 
   /**
@@ -72,19 +65,32 @@ module.exports = function (config) {
    *                         publish.
    * @param {Function(err)} callback The callback to call when done.
    */
-  function publish (routingKey, message, options, cb) {
-    debug('publish()');
-    var d = Deferred();
+
+  /**
+    * @async
+    * @description
+    * Publish a message to the given routing key, with given options.
+    * @param {string} routingKey
+    * @param {object|string} message
+    * @param {object} options
+    * @returns {Promise}
+    */
+  async publish (routingKey, message, options = {}) {
     if (typeof message === 'object') {
       message = stringifysafe(message);
     }
-    channel.publish(config.exchange, routingKey, Buffer.from(message),
-      options, d.resolver(cb));
-
-    return d.nodeify(cb);
+    // NB: amqplib's ConfirmChannel.publish does not actually return a promise.
+    // See https://www.squaremobius.net/amqp.node/channel_api.html#flowcontrol
+    return promisify(this.channel.publish.bind(this.channel, this.config.exchange, routingKey, Buffer.from(message), options))();
   }
 
   /**
+   * @async
+   * Start consuming on the queue specified in the config you passed on
+   * instantiation, using the given message handler callback.
+   * @param {function} handleMessage
+   * @param {object} options
+   * @description
    * handleMessage() is expected to be of the form:
    * handleMessage(parsedMessage, callback).
    * If callback is called with a non-null error, then the message will be
@@ -96,9 +102,10 @@ module.exports = function (config) {
    * If not given, requeue is assumed to be false.
    *
    * cf http://squaremo.github.io/amqp.node/doc/channel_api.html#toc_34
+   * @returns {Promise}
    */
-  function consume (handleMessage, options) {
-    debug('consume()');
+  async consume (handleMessage, options) {
+    const { channel } = this;
     function callback (message) {
       function done (err, requeue) {
         if (requeue === undefined) {
@@ -111,8 +118,8 @@ module.exports = function (config) {
       }
 
       try {
-        var messagePayload = message.content.toString();
-        var parsedPayload = JSON.parse(messagePayload);
+        const messagePayload = message.content.toString();
+        const parsedPayload = JSON.parse(messagePayload);
         handleMessage(parsedPayload, done);
       } catch (error) {
         console.log(error);
@@ -122,15 +129,8 @@ module.exports = function (config) {
       }
     }
 
-    channel.consume(config.queue.name, callback, options);
+    return channel.consume(this.config.queue.name, callback, options);
   }
+}
 
-  return {
-    connect,
-    close,
-    publish,
-    consume
-  };
-};
-
-// vim: set et sw=2:
+module.exports = AMQPWrapper;
