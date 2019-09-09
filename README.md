@@ -1,10 +1,63 @@
 amqp-wrapper
 ----------------
 
-A simple wrapper to https://github.com/squaremo/amqp.node.
+> Simple consuming and publishing from/to a RabbitMQ broker.
 
 Allows you to have any number of publish queues, one consume queue and to perform
 consume and publish operations.
+
+- Auto queue declaration & binding
+- Dead lettering support
+- Easy publishing
+- Simple promise based API
+
+# Example usage
+```javascript
+const AMQP = require('amqp-wrapper');
+
+var config = {
+  url: process.env.AMQP_URL,
+  exchange: process.env.AMQP_EXCHANGE,
+  queue: {
+    name: process.env.AMQP_CONSUME,
+    routingKey: process.env.AMQP_ROUTING_KEY, // If supplied, queue is bound to
+    // this key (or keys) on the exchange. NB Can be an array of strings or just
+    // a string.
+    options: {/* ... */} // Advanced: options passed to ch.assertQueue() in wrapped `amqplib`.
+  },
+  // Set the QOS/prefetch (defaults to 1)
+  prefetch: 100
+};
+
+const amqp = new AMQP(config);
+
+async function main () {
+  // Must call this before you consume/publish/etc...
+  await amqp.connect();
+
+  // Consuming
+  var handleMessage = function(message, callback) {
+    //... Do things
+    callback();
+  };
+  // You must call:
+  callback(err, requeue)
+  // in your handleMessage. If `err` !== `null` then the message will be `nack`ed.
+  // Requeueing will be requeue iff `requeue` is `true`.
+  // If `err` is `null` then the message is `ack`ed.
+  // If an exception occurs in handleMessage, then the message is `nack`ed and not requeued.
+
+  // Start consuming:
+  amqp.consume(handleMessage);
+
+  // Publishing to arbitrary routing key.
+  await amqp.publish(routingKey, payload, options);
+}
+```
+
+If `payload` is an object, it will be turned into JSON.
+
+# Details
 
 - You can specify a queue which will be declared (made to exist). This will be
   the queue from which you will consume.
@@ -23,50 +76,10 @@ consume and publish operations.
   lettered on that queue it will have somewhere to go without you having to set up
   a dead lettering queue manually.
 
-# Example usage
-```javascript
-const AMQP = require('amqp-wrapper');
 
-var config = {
-  url: process.env.AMQP_URL,
-  exchange: process.env.AMQP_EXCHANGE,
-  queue: {
-    name: process.env.AMQP_CONSUME,
-    routingKey: process.env.AMQP_ROUTING_KEY, // If supplied, queue is bound to
-    // this key (or keys) on the exchange. NB Can be an array of string or just
-    // a string.
-    options: {/* ... */} // options passed to ch.assertQueue() in wrapped lib.
-  },
-  // Set the QOS/prefetch.
-  prefetch: 100
-};
 
-const amqp = new AMQP(config);
-
-async function main () {
-  // Must call this before you consume/publish/etc...
-  await amqp.connect();
-
-  // Consuming
-  var handleMessage = function(message, callback) {
-          //...
-  };
-  // You must call:
-  callback(err, requeue)
-  // in your handleMessage. If `err` !== `null` then the message will be `nack`ed.
-  // Requeueing will be requeue iff `requeue` is `true`.
-  // If `err` is `null` then the message is `ack`ed.
-  // If an exception occurs in handleMessage, then the message is `nack`ed and not requeued.
-
-  // Start consuming:
-  amqp.consume(handleMessage);
-
-  // Publishing to arbitrary routing key.
-  await amqp.publish(routingKey, payload, options);
-}
-```
-
-If `payload` is an object, it will be turned into JSON.
+# Thanks to
+This is a wrapper to https://github.com/squaremo/amqp.node (`amqplib`).
 
 # Tests
 Start a rabbit server, preferably a 'throw away' one with fresh state.  You can
@@ -91,7 +104,7 @@ use localhost if it's not there... unproven though.)
 Class to contain an instantiated connection/channel to AMQP with a given
 config.
 
-**Kind**: global class  
+**Kind**: global class
 
 * [AMQPWrapper](#AMQPWrapper)
     * [new AMQPWrapper(config)](#new_AMQPWrapper_new)
@@ -122,25 +135,25 @@ Instantiate an AMQP wrapper with a given config.
 Connects, establishes a channel, sets up exchange/queues/bindings/dead
 lettering.
 
-**Kind**: instance method of [<code>AMQPWrapper</code>](#AMQPWrapper)  
+**Kind**: instance method of [<code>AMQPWrapper</code>](#AMQPWrapper)
 <a name="AMQPWrapper+close"></a>
 
 ### amqpWrapper.close() ⇒ <code>Promise</code>
 Closes connection.
 
-**Kind**: instance method of [<code>AMQPWrapper</code>](#AMQPWrapper)  
+**Kind**: instance method of [<code>AMQPWrapper</code>](#AMQPWrapper)
 <a name="AMQPWrapper+publish"></a>
 
 ### amqpWrapper.publish(routingKey, message, options) ⇒ <code>Promise</code>
 Publish a message to the given routing key, with given options.
 
-**Kind**: instance method of [<code>AMQPWrapper</code>](#AMQPWrapper)  
+**Kind**: instance method of [<code>AMQPWrapper</code>](#AMQPWrapper)
 
 | Param | Type |
 | --- | --- |
-| routingKey | <code>string</code> | 
-| message | <code>object</code> \| <code>string</code> | 
-| options | <code>object</code> | 
+| routingKey | <code>string</code> |
+| message | <code>object</code> \| <code>string</code> |
+| options | <code>object</code> |
 
 <a name="AMQPWrapper+consume"></a>
 
@@ -157,12 +170,12 @@ If not given, requeue is assumed to be false.
 
 cf http://squaremo.github.io/amqp.node/doc/channel_api.html#toc_34
 
-**Kind**: instance method of [<code>AMQPWrapper</code>](#AMQPWrapper)  
+**Kind**: instance method of [<code>AMQPWrapper</code>](#AMQPWrapper)
 
 | Param | Type |
 | --- | --- |
-| handleMessage | <code>function</code> | 
-| options | <code>object</code> | 
+| handleMessage | <code>function</code> |
+| options | <code>object</code> |
 
 # License
 
