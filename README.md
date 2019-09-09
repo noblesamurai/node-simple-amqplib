@@ -1,4 +1,4 @@
-amqp-wrapper
+simple-amqplib
 ----------------
 
 > Simple consuming and publishing from/to a RabbitMQ broker.
@@ -12,7 +12,7 @@ Declarative API to consume from a rabbitMQ queue and to perform publish operatio
 
 # Example usage
 ```javascript
-const AMQP = require('amqp-wrapper');
+const AMQP = require('simple-amqplib');
 
 var config = {
   url: process.env.AMQP_URL,
