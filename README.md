@@ -1,4 +1,6 @@
 simple-amqplib
+[![Build Status](https://secure.travis-ci.org/noblesamurai/node-simple-amqplib.svg?branch=master)](http://travis-ci.org/noblesamurai/node-simple-amqplib)
+[![npm version](https://badge.fury.io/js/simple-amqplib.svg)](https://badge.fury.io/js/simple-amqplib)
 ----------------
 
 > Simple consuming and publishing from/to a RabbitMQ broker.
