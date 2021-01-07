@@ -104,7 +104,8 @@ class AMQPWrapper {
    * cf http://squaremo.github.io/amqp.node/doc/channel_api.html#toc_34
    * @returns {Promise}
    */
-  async consume (handleMessage, options) {
+  async consume (handleMessage, _options = {}) {
+    const { returnRawMessage = false, ...options } = _options;
     const { channel } = this;
     function callback (message) {
       function done (err, requeue) {
@@ -120,7 +121,11 @@ class AMQPWrapper {
       try {
         const messagePayload = message.content.toString();
         const parsedPayload = JSON.parse(messagePayload);
-        handleMessage(parsedPayload, done);
+        if (returnRawMessage) {
+          handleMessage(parsedPayload, message, done);
+        } else {
+          handleMessage(parsedPayload, done);
+        }
       } catch (error) {
         console.log(error);
         // Do not requeue on exception - it means something unexpected
