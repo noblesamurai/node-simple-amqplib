@@ -3,7 +3,7 @@ simple-amqplib
 [![npm version](https://badge.fury.io/js/simple-amqplib.svg)](https://badge.fury.io/js/simple-amqplib)
 ----------------
 
-> Simple consuming and publishing from/to a RabbitMQ broker.
+> Simmmmple consuming and publishing from/to a RabbitMQ broker.
 
 Declarative API to consume from a rabbitMQ queue and to perform publish operations.
 
