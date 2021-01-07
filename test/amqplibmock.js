@@ -1,13 +1,13 @@
 /**
  * This is a mock for the underlying amqplib library that we are wrapping.
  */
-var Sinon = require('sinon');
+const Sinon = require('sinon');
 
 module.exports = function (config) {
-  var overrides = (config && config.overrides) || {};
-  var messageToDeliver = (config && config.messageToDeliver) || '{}';
+  const overrides = (config && config.overrides) || {};
+  const messageToDeliver = (config && config.messageToDeliver) || '{}';
 
-  var channelMock = {
+  const channelMock = {
     consume: Sinon.stub().callsArgWith(1, {
       content: {
         toString: function () { return messageToDeliver; }
@@ -21,12 +21,12 @@ module.exports = function (config) {
     nack: overrides.nack || Sinon.spy()
   };
 
-  var connectionMock = {
+  const connectionMock = {
     createConfirmChannel: Sinon.stub().resolves(channelMock),
     close: Sinon.stub().resolves()
   };
 
-  var amqpLibMock = {
+  const amqpLibMock = {
     connect: Sinon.stub().resolves(connectionMock)
   };
 

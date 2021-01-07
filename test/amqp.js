@@ -22,7 +22,7 @@ describe('AMQP', function () {
   });
   describe('#connect', function () {
     it('should should fail to connect to bad endpoint', function (done) {
-      var amqp = new AMQP({
+      const amqp = new AMQP({
         url: 'amqp://guest:guest@localhost:6767',
         exchange: 'FOO'
       });
@@ -32,12 +32,12 @@ describe('AMQP', function () {
       });
     });
     it('should return a promise', async function () {
-      var amqp = new AMQP(config.good);
+      const amqp = new AMQP(config.good);
       expect(amqp.connect()).to.be.fulfilled();
     });
     it('should declare your queue, and bind it', async function () {
-      var amqpLibMock = require('./amqplibmock')();
-      var MockedAMQP = SandboxedModule.require('../amqp', {
+      const amqpLibMock = require('./amqplibmock')();
+      const MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           amqplib: amqpLibMock.mock
         }
@@ -52,8 +52,8 @@ describe('AMQP', function () {
       expect(amqpLibMock.bindQueueSpy.callCount).to.equal(2);
     });
     it('allows you to specify an array for routingKey and binds each given', function (done) {
-      var amqpLibMock = require('./amqplibmock')();
-      var MockedAMQP = SandboxedModule.require('../amqp', {
+      const amqpLibMock = require('./amqplibmock')();
+      const MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           amqplib: amqpLibMock.mock
         }
@@ -70,8 +70,8 @@ describe('AMQP', function () {
       }).catch(done);
     });
     it('should just declare if you don\'t specify routing key', function (done) {
-      var amqpLibMock = require('./amqplibmock')();
-      var MockedAMQP = SandboxedModule.require('../amqp', {
+      const amqpLibMock = require('./amqplibmock')();
+      const MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           amqplib: amqpLibMock.mock
         }
@@ -89,24 +89,24 @@ describe('AMQP', function () {
   });
   describe('#publish', function () {
     it('should resolve successfully', async function () {
-      var amqp = new AMQP(config.good);
+      const amqp = new AMQP(config.good);
       await amqp.connect();
       await expect(amqp.publish('myqueue', 'test', {})).to.eventually.be.fulfilled();
     });
     it('should accept objects', async function () {
-      var amqp = new AMQP(config.good);
+      const amqp = new AMQP(config.good);
       await amqp.connect();
       await expect(amqp.publish('myqueue', { woo: 'test' }, {})).to.eventually.be.fulfilled();
     });
   });
   describe('#consume', async function () {
     it('if done(err) is called with err === null, calls ack().', function (done) {
-      var ack = function () {
+      const ack = function () {
         done();
       };
 
-      var amqpLibMock = require('./amqplibmock')({ overrides: { ack: ack } });
-      var MockedAMQP = SandboxedModule.require('../amqp', {
+      const amqpLibMock = require('./amqplibmock')({ overrides: { ack: ack } });
+      const MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           amqplib: amqpLibMock.mock
         }
@@ -119,21 +119,21 @@ describe('AMQP', function () {
 
       mockedAMQP.connect().then(function () {
         mockedAMQP.consume(myMessageHandler);
-      }).catch(done);
+      }).catch((done));
     });
 
     it('if json unparsable, calls nack() with requeue of false.', function (done) {
-      var nack = function (message, upTo, requeue) {
+      const nack = function (message, upTo, requeue) {
         expect(requeue).to.equal(false);
         done();
       };
 
-      var amqpLibMock = require('./amqplibmock')({
+      const amqpLibMock = require('./amqplibmock')({
         messageToDeliver: 'nonvalidjson',
         overrides: { nack: nack }
       });
 
-      var MockedAMQP = SandboxedModule.require('../amqp', {
+      const MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           amqplib: amqpLibMock.mock
         }
@@ -150,14 +150,14 @@ describe('AMQP', function () {
     });
     it('if json callback called with err, calls nack() with requeue as given.',
       function (done) {
-        var nack = function (message, upTo, requeue) {
+        const nack = function (message, upTo, requeue) {
           expect(requeue).to.equal('requeue');
           done();
         };
 
-        var amqpLibMock = require('./amqplibmock')({ overrides: { nack: nack } });
+        const amqpLibMock = require('./amqplibmock')({ overrides: { nack: nack } });
 
-        var MockedAMQP = SandboxedModule.require('../amqp', {
+        const MockedAMQP = SandboxedModule.require('../amqp', {
           requires: {
             amqplib: amqpLibMock.mock
           }
@@ -175,8 +175,8 @@ describe('AMQP', function () {
   });
   describe('#close', function () {
     it('should close the connection', async function () {
-      var amqpLibMock = require('./amqplibmock')();
-      var MockedAMQP = SandboxedModule.require('../amqp', {
+      const amqpLibMock = require('./amqplibmock')();
+      const MockedAMQP = SandboxedModule.require('../amqp', {
         requires: {
           amqplib: amqpLibMock.mock
         }
