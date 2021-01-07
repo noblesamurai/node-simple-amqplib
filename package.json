@@ -1,6 +1,6 @@
 {
   "name": "simple-amqplib",
-  "version": "7.0.3",
+  "version": "7.0.4-1",
   "engines": {
     "node": ">= 8"
   },
