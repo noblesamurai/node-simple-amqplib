@@ -1,6 +1,6 @@
 {
   "name": "simple-amqplib",
-  "version": "7.0.4-1",
+  "version": "7.0.4",
   "description": "Dead simple consume & publish for RabbitMQ.",
   "main": "amqp.js",
   "scripts": {

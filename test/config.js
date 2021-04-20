@@ -1,6 +1,6 @@
 module.exports = {
   good: {
-    url: process.env.AMQP_URL || '
+    url: process.env.AMQP_URL || 'amqp://guest:guest@localhost',
     exchange: 'mytestexchange',
     queue: {
       name: 'myconsumequeue',
@@ -9,7 +9,7 @@ module.exports = {
     }
   },
   noRoutingKey: {
-    url: process.env.AMQP_URL || '
+    url: process.env.AMQP_URL || 'amqp://guest:guest@localhost',
     exchange: 'hasone',
     queue: {
       name: 'myconsumequeue',
@@ -17,7 +17,7 @@ module.exports = {
     }
   },
   routingKeyArray: {
-    url: process.env.AMQP_URL || '
+    url: process.env.AMQP_URL || 'amqp://guest:guest@localhost',
     exchange: 'mytestexchange',
     queue: {
       name: 'myconsumequeue',
