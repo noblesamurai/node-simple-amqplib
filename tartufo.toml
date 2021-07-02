@@ -1,0 +1,17 @@
+[tool.tartufo]
+cleanup = true
+entropy = true
+exclude-path-patterns = [
+  'tartufo.toml'
+]
+exclude-signatures = [
+  # docker-compose.yml - test amqp connection string
+  '9894678446dad61d13bb079571be7904bb0251de70bc906030e94aaad6b28bd6',
+  # test/amqp.js - test amqp connection string
+  '555c74e153fac0cb6c88164c11aeaba18a4a4e577b174e949b919c3566f84272',
+  # test/config.js - test amqp connection string
+  '70392a52a4d86a314f12985c77246a6fba32cd9c5e757a9e786a33c9c6d8140e'
+]
+json = false
+regex = true
+repo-path = "."
