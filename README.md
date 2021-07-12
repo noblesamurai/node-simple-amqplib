@@ -122,13 +122,13 @@ Instantiate an AMQP wrapper with a given config.
 
 | Param | Type |
 | --- | --- |
-| config | <code>object</code> | 
-| config.url | <code>string</code> | 
-| config.exchange | <code>string</code> | 
-| config.queue | <code>object</code> | 
-| config.queue.name | <code>string</code> | 
-| config.queue.routingKey | <code>Array.&lt;string&gt;</code> \| <code>string</code> | 
-| config.queue.options | <code>object</code> | 
+| config | <code>object</code> |
+| config.url | <code>string</code> |
+| config.exchange | <code>string</code> |
+| config.queue | <code>object</code> |
+| config.queue.name | <code>string</code> |
+| config.queue.routingKey | <code>Array.&lt;string&gt;</code> \| <code>string</code> |
+| config.queue.options | <code>object</code> |
 
 <a name="AMQPWrapper+connect"></a>
 
@@ -177,6 +177,20 @@ cf http://squaremo.github.io/amqp.node/doc/channel_api.html#toc_34
 | --- | --- |
 | handleMessage | <code>function</code> |
 | options | <code>object</code> |
+
+## Contributing
+
+### Prerequisites
+
+```
+$ pip install pre-commit
+```
+
+### Installation
+
+```
+$ pre-commit install --install-hooks
+```
 
 # License
 
